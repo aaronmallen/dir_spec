@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint markdown files with auto-correction"
+#MISE alias=["l:f:md", "l:f:markdown", "l:fix:md", "lint:f:markdown", "lint:f:md", "lint:fix:md"]
+
+if command -v markdownlint >/dev/null 2>&1; then
+  markdownlint . --fix
+fi

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+#MISE description="check dependencies for updates and security vulnerabilities"
+
+cargo audit
+cargo outdated

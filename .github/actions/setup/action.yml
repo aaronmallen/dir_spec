@@ -1,0 +1,8 @@
+name: Shared Setup
+runs:
+  using: "composite"
+  steps:
+    - uses: jdx/mise-action@v2
+    - name: Setup
+      shell: sh
+      run: mise run setup

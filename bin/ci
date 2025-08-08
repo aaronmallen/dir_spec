@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+#MISE description="run all CI checks"
+
+use_color() {
+  [ "${FORCE_COLOR:-}" = "1" ] && return 0
+  [ -t 1 ] || return 1
+  [ "${TERM:-}" = "dumb" ] && return 1
+  [ -n "${NO_COLOR:-}" ] && return 1
+  return 0
+}
+
+echo_step() {
+  if use_color; then
+    printf "\n\e[38;2;72;192;189m==>\e[0m \e[38;2;255;255;255;1m%s\e[0m\n\n" "$1"
+  else
+    printf "\n==> %s\n\n" "$1"
+  fi
+}
+
+echo_step "✨ Lint" && bin/lint/_default
+echo_step "🧪 Test" && bin/test
+echo_step "👷‍♂️ Build" && bin/build

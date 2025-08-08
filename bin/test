@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+#MISE description="run unit tests"
+#MISE alias=["t"]
+
+cargo test

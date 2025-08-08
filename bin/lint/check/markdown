@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint markdown files"
+#MISE alias=["l:c:md", "l:c:markdown", "l:check:md", "lint:c:markdown", "lint:c:md", "lint:check:md"]
+
+if command -v markdownlint >/dev/null 2>&1; then
+  markdownlint .
+fi

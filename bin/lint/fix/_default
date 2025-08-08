@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="run formatting and lint checks with auto-correction"
+#MISE alias=["l:f", "l:fix", "lint:f"]
+
+bin/lint/fix/markdown &&
+bin/lint/fix/rust

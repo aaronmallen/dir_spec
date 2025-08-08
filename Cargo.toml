@@ -1,0 +1,14 @@
+[package]
+name = "dir_spec"
+version = "0.0.1"
+edition = "2024"
+description = "A cross-platform Rust library for resolving XDG and platform-specific directories with proper fallbacks."
+authors = ["Aaron Allen (@aaronmallen)"]
+repository = "https://github.com/aaronmallen/dir_spec.git"
+homepage = "https://github.com/aaronmallen/dir_spec"
+license-file = "LICENSE"
+readme = "README.md"
+
+[dependencies]
+eyre = "0.6"
+libc = "1.0.0-alpha.1"

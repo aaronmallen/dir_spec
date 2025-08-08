@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+#MISE description="generate and open documentation"
+
+cargo clean
+cargo doc --no-deps --document-private-items --open

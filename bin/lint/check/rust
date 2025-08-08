@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint rust files"
+#MISE alias=["l:c:rs", "l:c:rust", "l:check:rs", "lint:c:rust", "lint:c:rs", "lint:check:rs"]
+
+cargo sort --check
+cargo +nightly fmt --all --check
+cargo clippy --all-targets

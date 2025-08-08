@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint rust files with auto-correction"
+#MISE alias=["l:f:rs", "l:f:rust", "l:fix:rs", "lint:f:rust", "lint:f:rs", "lint:fix:rs"]
+
+cargo sort
+cargo +nightly fmt --all
+cargo clippy --all-targets --fix --allow-dirty --allow-staged

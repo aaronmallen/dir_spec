@@ -1,0 +1,6 @@
+[task_config]
+includes = ["bin"]
+
+[tools]
+"npm:markdownlint-cli" = "latest"
+rust = "1.89"

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+#MISE description="install dependencies and setup the dev environment"
+
+cargo install cargo-audit cargo-outdated cargo-sort
