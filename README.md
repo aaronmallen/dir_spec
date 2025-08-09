@@ -49,23 +49,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Supported Directories
 
-| Method              | XDG Variable           | Linux Default    | macOS Default                   | Windows Default            |
-|---------------------|------------------------|------------------|---------------------------------|----------------------------|
-| `bin_home()`        | `XDG_BIN_HOME`         | `~/.local/bin`   | `~/.local/bin`                  | `%LOCALAPPDATA%\Programs`  |
-| `cache_home()`      | `XDG_CACHE_HOME`       | `~/.cache`       | `~/Library/Caches`              | `%LOCALAPPDATA%`           |
-| `config_home()`     | `XDG_CONFIG_HOME`      | `~/.config`      | `~/Library/Application Support` | `%APPDATA%`                |
-| `data_home()`       | `XDG_DATA_HOME`        | `~/.local/share` | `~/Library/Application Support` | `%APPDATA%`                |
-| `desktop_dir()`     | `XDG_DESKTOP_DIR`      | `~/Desktop`      | `~/Desktop`                     | `%USERPROFILE%\Desktop`    |
-| `documents_dir()`   | `XDG_DOCUMENTS_DIR`    | `~/Documents`    | `~/Documents`                   | `%USERPROFILE%\Documents`  |
-| `download_dir()`    | `XDG_DOWNLOAD_DIR`     | `~/Downloads`    | `~/Downloads`                   | `%USERPROFILE%\Downloads`  |
-| `music_dir()`       | `XDG_MUSIC_DIR`        | `~/Music`        | `~/Music`                       | `%USERPROFILE%\Music`      |
-| `pictures_dir()`    | `XDG_PICTURES_DIR`     | `~/Pictures`     | `~/Pictures`                    | `%USERPROFILE%\Pictures`   |
-| `publicshare_dir()` | `XDG_PUBLICSHARE_DIR`  | `~/Public`       | `~/Public`                      | `C:\Users\Public`          |
-| `runtime_dir()`     | `XDG_RUNTIME_DIR`      | `/run/user/$UID` | `$TMPDIR` or `/tmp`             | `%TEMP%`                   |
-| `state_home()`      | `XDG_STATE_HOME`       | `~/.local/state` | `~/Library/Application Support` | `%LOCALAPPDATA%`           |
-| `templates_dir()`   | `XDG_TEMPLATES_DIR`    | `~/Templates`    | `~/Templates`                   | `%USERPROFILE%\Templates`  |
-| `videos_dir()`      | `XDG_VIDEOS_DIR`       | `~/Videos`       | `~/Movies`                      | `%USERPROFILE%\Videos`     |
-| `home()`            | `HOME` / `USERPROFILE` | `$HOME`          | `$HOME`                         | `%USERPROFILE%`            |
+| Method          | XDG Variable           | Linux Default    | macOS Default                   | Windows Default            |
+|-----------------|------------------------|------------------|---------------------------------|----------------------------|
+| `bin_home()`    | `XDG_BIN_HOME`         | `~/.local/bin`   | `~/.local/bin`                  | `%LOCALAPPDATA%\Programs`  |
+| `cache_home()`  | `XDG_CACHE_HOME`       | `~/.cache`       | `~/Library/Caches`              | `%LOCALAPPDATA%`           |
+| `config_home()` | `XDG_CONFIG_HOME`      | `~/.config`      | `~/Library/Application Support` | `%APPDATA%`                |
+| `data_home()`   | `XDG_DATA_HOME`        | `~/.local/share` | `~/Library/Application Support` | `%APPDATA%`                |
+| `desktop()`     | `XDG_DESKTOP_DIR`      | `~/Desktop`      | `~/Desktop`                     | `%USERPROFILE%\Desktop`    |
+| `documents()`   | `XDG_DOCUMENTS_DIR`    | `~/Documents`    | `~/Documents`                   | `%USERPROFILE%\Documents`  |
+| `download()`    | `XDG_DOWNLOAD_DIR`     | `~/Downloads`    | `~/Downloads`                   | `%USERPROFILE%\Downloads`  |
+| `music()`       | `XDG_MUSIC_DIR`        | `~/Music`        | `~/Music`                       | `%USERPROFILE%\Music`      |
+| `pictures()`    | `XDG_PICTURES_DIR`     | `~/Pictures`     | `~/Pictures`                    | `%USERPROFILE%\Pictures`   |
+| `publicshare()` | `XDG_PUBLICSHARE_DIR`  | `~/Public`       | `~/Public`                      | `C:\Users\Public`          |
+| `runtime()`     | `XDG_RUNTIME_DIR`      | `/run/user/$UID` | `$TMPDIR` or `/tmp`             | `%TEMP%`                   |
+| `state_home()`  | `XDG_STATE_HOME`       | `~/.local/state` | `~/Library/Application Support` | `%LOCALAPPDATA%`           |
+| `templates()`   | `XDG_TEMPLATES_DIR`    | `~/Templates`    | `~/Templates`                   | `%USERPROFILE%\Templates`  |
+| `videos()`      | `XDG_VIDEOS_DIR`       | `~/Videos`       | `~/Movies`                      | `%USERPROFILE%\Videos`     |
+| `home()`        | `HOME` / `USERPROFILE` | `$HOME`          | `$HOME`                         | `%USERPROFILE%`            |
 
 ## XDG Environment Variable Priority
 
