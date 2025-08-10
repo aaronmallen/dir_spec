@@ -8,6 +8,8 @@ repository = "https://github.com/aaronmallen/dir_spec.git"
 homepage = "https://github.com/aaronmallen/dir_spec"
 license = "MIT"
 readme = "README.md"
+keywords = ["xdg", "directories", "cross-platform", "filesystem", "config"]
+categories = ["filesystem", "os", "config"]
 
 [dependencies]
 libc = "1.0.0-alpha.1"
