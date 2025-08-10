@@ -273,7 +273,7 @@ impl Dir {
   /// Returns the user's runtime directory.
   ///
   /// Checks `XDG_RUNTIME_DIR` first, then falls back to platform defaults:
-  /// - **Linux**: `/run/user/{uid}`
+  /// - **Linux**: Attempts to use `$TMPDIR`, then falls back to `/tmp`
   /// - **macOS**: `$TMPDIR` or `/tmp`
   /// - **Windows**: `%TEMP%`
   ///
@@ -290,7 +290,7 @@ impl Dir {
       return Some(path);
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     {
       env::var("TMPDIR").ok().map(PathBuf::from).or_else(|| Some(PathBuf::from("/tmp")))
     }
@@ -298,13 +298,6 @@ impl Dir {
     #[cfg(target_os = "windows")]
     {
       env::var("TEMP").ok().map(PathBuf::from)
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-      #[allow(unsafe_code)]
-      let uid = unsafe { libc::getuid() };
-      Some(PathBuf::from(format!("/run/user/{}", uid)))
     }
   }
 
@@ -576,10 +569,7 @@ mod tests {
     if let Some(runtime_path) = runtime {
       assert!(runtime_path.is_absolute());
 
-      #[cfg(target_os = "linux")]
-      assert!(runtime_path.to_string_lossy().starts_with("/run/user/"));
-
-      #[cfg(target_os = "macos")]
+      #[cfg(any(target_os = "linux", target_os = "macos"))]
       {
         let path_str = runtime_path.to_string_lossy();
         assert!(path_str.contains("tmp") || path_str.starts_with("/var/folders"));
