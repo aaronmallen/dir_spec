@@ -5,12 +5,3 @@ version = 4
 [[package]]
 name = "dir_spec"
 version = "0.1.0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "libc"
-version = "1.0.0-alpha.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7222002e5385b4d9327755661e3847c970e8fbf9dea6da8c57f16e8cfbff53a8"
