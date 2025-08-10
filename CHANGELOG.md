@@ -10,26 +10,29 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 * **BREAKING**: All methods now return `Option<PathBuf>` instead of `Result<PathBuf>`
 * **BREAKING**: `home()` method now uses `std::env::home_dir()` directly (was previously deprecated, now undeprecated)
+* **BREAKING**: `runtime()` method on Linux now uses `$TMPDIR` then `/tmp` fallback instead of `/run/user/{uid}`
 * Simplified error handling by removing `eyre` dependency from public API
 * Updated documentation and examples to use Option pattern matching
 
 ### Removed
 
 * **BREAKING**: Removed `eyre` dependency from public API
+* **BREAKING**: Removed `libc` dependency entirely
 * **BREAKING**: Removed all deprecated `*_dir()` method variants:
-* `desktop_dir()` (use `desktop()`)
-* `documents_dir()` (use `documents()`)
-* `download_dir()` (use `downloads()`)
-* `music_dir()` (use `music()`)
-* `pictures_dir()` (use `pictures()`)
-* `publicshare_dir()` (use `publicshare()`)
-* `runtime_dir()` (use `runtime()`)
-* `templates_dir()` (use `templates()`)
-* `videos_dir()` (use `videos()`)
+  * `desktop_dir()` (use `desktop()`)
+  * `documents_dir()` (use `documents()`)
+  * `download_dir()` (use `downloads()`)
+  * `music_dir()` (use `music()`)
+  * `pictures_dir()` (use `pictures()`)
+  * `publicshare_dir()` (use `publicshare()`)
+  * `runtime_dir()` (use `runtime()`)
+  * `templates_dir()` (use `templates()`)
+  * `videos_dir()` (use `videos()`)
 
 ### Fixed
 
 * Eliminated potential panic in `home()` method by properly handling `None` case from `std::env::home_dir()`
+* Removed unsafe code by eliminating libc dependency
 
 ## [0.1.0] - 2025-08-08
 
