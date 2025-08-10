@@ -242,46 +242,7 @@ impl Dir {
   /// # }
   /// ```
   pub fn home() -> Result<PathBuf> {
-    #[cfg(unix)]
-    {
-      if let Ok(home) = env::var("HOME") {
-        return Ok(PathBuf::from(home));
-      }
-
-      #[allow(unsafe_code)]
-      {
-        let uid = unsafe { libc::getuid() };
-        let passwd = unsafe { libc::getpwuid(uid) };
-
-        if passwd.is_null() {
-          return Err(eyre::eyre!("Failed to resolve the home directory path"));
-        }
-
-        let home_c_str = unsafe { std::ffi::CStr::from_ptr((*passwd).pw_dir) };
-        #[allow(clippy::similar_names)]
-        let home_str = home_c_str.to_str().map_err(|_| eyre::eyre!("Failed to resolve the home directory path"))?;
-
-        Ok(PathBuf::from(home_str))
-      }
-    }
-
-    #[cfg(windows)]
-    {
-      if let Ok(profile) = env::var("USERPROFILE") {
-        return Ok(PathBuf::from(profile));
-      }
-
-      if let (Ok(drive), Ok(path)) = (env::var("HOMEDRIVE"), env::var("HOMEPATH")) {
-        return Ok(PathBuf::from(format!("{}{}", drive, path)));
-      }
-
-      Err(eyre::eyre!("Failed to resolve the home directory path"))
-    }
-
-    #[cfg(not(any(unix, windows)))]
-    {
-      Err(eyre::eyre!("Failed to resolve the home directory path: Unsupported platform"))
-    }
+    Ok(std::env::home_dir().unwrap())
   }
 
   /// Returns the user's music directory.
