@@ -13,8 +13,8 @@ across all platforms while providing sensible platform-specific fallbacks.
 - **XDG-first approach**: Respects XDG environment variables on all platforms
 - **Platform-aware fallbacks**: Uses native conventions when XDG variables aren't set
 - **Cross-platform**: Works on Linux, macOS, and Windows
-- **Zero dependencies**: Only uses `std` and `libc` for Unix systems
-- **Type-safe**: Returns `Result<PathBuf>` for proper error handling
+- **Minimal dependencies**: Only uses `libc` for Unix systems
+- **Type-safe**: Returns `Option<PathBuf>` for simple error handling
 
 ## Usage
 
@@ -22,7 +22,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dir_spec = "0.1.0"
+dir_spec = "0.2.0"
 ```
 
 Basic usage:
@@ -30,20 +30,21 @@ Basic usage:
 ```rust
 use dir_spec::Dir;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     // Get config directory (respects XDG_CONFIG_HOME if set)
-    let config_dir = Dir::config_home()?;
-    println!("Config: {}", config_dir.display());
+    if let Some(config_dir) = Dir::config_home() {
+        println!("Config: {}", config_dir.display());
+    }
     
     // Get cache directory (respects XDG_CACHE_HOME if set)
-    let cache_dir = Dir::cache_home()?;
-    println!("Cache: {}", cache_dir.display());
+    if let Some(cache_dir) = Dir::cache_home() {
+        println!("Cache: {}", cache_dir.display());
+    }
     
     // Get user's home directory
-    let home_dir = Dir::home()?;
-    println!("Home: {}", home_dir.display());
-    
-    Ok(())
+    if let Some(home_dir) = Dir::home() {
+        println!("Home: {}", home_dir.display());
+    }
 }
 ```
 
@@ -57,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `data_home()`   | `XDG_DATA_HOME`        | `~/.local/share` | `~/Library/Application Support` | `%APPDATA%`                |
 | `desktop()`     | `XDG_DESKTOP_DIR`      | `~/Desktop`      | `~/Desktop`                     | `%USERPROFILE%\Desktop`    |
 | `documents()`   | `XDG_DOCUMENTS_DIR`    | `~/Documents`    | `~/Documents`                   | `%USERPROFILE%\Documents`  |
-| `download()`    | `XDG_DOWNLOAD_DIR`     | `~/Downloads`    | `~/Downloads`                   | `%USERPROFILE%\Downloads`  |
+| `downloads()`   | `XDG_DOWNLOAD_DIR`     | `~/Downloads`    | `~/Downloads`                   | `%USERPROFILE%\Downloads`  |
 | `music()`       | `XDG_MUSIC_DIR`        | `~/Music`        | `~/Music`                       | `%USERPROFILE%\Music`      |
 | `pictures()`    | `XDG_PICTURES_DIR`     | `~/Pictures`     | `~/Pictures`                    | `%USERPROFILE%\Pictures`   |
 | `publicshare()` | `XDG_PUBLICSHARE_DIR`  | `~/Public`       | `~/Public`                      | `C:\Users\Public`          |
@@ -75,7 +76,7 @@ This crate always checks XDG environment variables first, regardless of platform
 // This will use XDG_CONFIG_HOME if set, even on macOS/Windows
 export XDG_CONFIG_HOME="/custom/config/path"
 
-let config = Dir::config_home()?; // Returns "/custom/config/path"
+let config = Dir::config_home(); // Returns Some("/custom/config/path")
 ```
 
 If XDG variables aren't set, the crate falls back to platform-appropriate defaults.
@@ -100,29 +101,37 @@ Follows XDG Base Directory Specification defaults when XDG variables aren't set.
 
 ## Error Handling
 
-All methods return `Result<PathBuf, eyre::Error>`. Common error cases:
+All methods return `Option<PathBuf>`. Methods return `None` when:
 
 - Home directory cannot be determined
 - Required environment variables are missing (Windows-specific cases)
-- Path contains invalid UTF-8 (Unix systems only)
+- Platform-specific directory resolution fails
 
 ```rust
 match Dir::config_home() {
-    Ok(path) => println!("Config dir: {}", path.display()),
-    Err(e) => eprintln!("Failed to get config dir: {}", e),
+    Some(path) => println!("Config dir: {}", path.display()),
+    None => eprintln!("Failed to get config dir"),
 }
+
+// Or using if-let
+if let Some(config_path) = Dir::config_home() {
+    println!("Config dir: {}", config_path.display());
+}
+
+// For fallback handling
+let config_dir = Dir::config_home().unwrap_or_else(|| {
+    // Fallback to current directory or panic, depending on your needs
+    std::env::current_dir().expect("Cannot determine current directory")
+});
 ```
 
 ## Dependencies
 
-- `eyre`: For error handling
-- `libc`: For Unix systems (accessing passwd database when `$HOME` isn't set)
+- `libc`: For Unix systems (accessing user database when `$HOME` isn't set)
 
 ## License
 
 Licensed under the [MIT LICENSE](./LICENSE)
-
-at your option.
 
 ## Contributing
 

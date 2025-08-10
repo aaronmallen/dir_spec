@@ -3,3 +3,6 @@ line-length:
   line_length: 120
   strict: true
   tables: false
+
+no-duplicate-heading:
+  siblings_only: true
