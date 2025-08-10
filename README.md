@@ -13,7 +13,7 @@ across all platforms while providing sensible platform-specific fallbacks.
 - **XDG-first approach**: Respects XDG environment variables on all platforms
 - **Platform-aware fallbacks**: Uses native conventions when XDG variables aren't set
 - **Cross-platform**: Works on Linux, macOS, and Windows
-- **Minimal dependencies**: Only uses `libc` for Unix systems
+- **Zero dependencies**: Only uses `std` library
 - **Type-safe**: Returns `Option<PathBuf>` for simple error handling
 
 ## Usage
@@ -50,23 +50,23 @@ fn main() {
 
 ## Supported Directories
 
-| Method          | XDG Variable           | Linux Default    | macOS Default                   | Windows Default            |
-|-----------------|------------------------|------------------|---------------------------------|----------------------------|
-| `bin_home()`    | `XDG_BIN_HOME`         | `~/.local/bin`   | `~/.local/bin`                  | `%LOCALAPPDATA%\Programs`  |
-| `cache_home()`  | `XDG_CACHE_HOME`       | `~/.cache`       | `~/Library/Caches`              | `%LOCALAPPDATA%`           |
-| `config_home()` | `XDG_CONFIG_HOME`      | `~/.config`      | `~/Library/Application Support` | `%APPDATA%`                |
-| `data_home()`   | `XDG_DATA_HOME`        | `~/.local/share` | `~/Library/Application Support` | `%APPDATA%`                |
-| `desktop()`     | `XDG_DESKTOP_DIR`      | `~/Desktop`      | `~/Desktop`                     | `%USERPROFILE%\Desktop`    |
-| `documents()`   | `XDG_DOCUMENTS_DIR`    | `~/Documents`    | `~/Documents`                   | `%USERPROFILE%\Documents`  |
-| `downloads()`   | `XDG_DOWNLOAD_DIR`     | `~/Downloads`    | `~/Downloads`                   | `%USERPROFILE%\Downloads`  |
-| `music()`       | `XDG_MUSIC_DIR`        | `~/Music`        | `~/Music`                       | `%USERPROFILE%\Music`      |
-| `pictures()`    | `XDG_PICTURES_DIR`     | `~/Pictures`     | `~/Pictures`                    | `%USERPROFILE%\Pictures`   |
-| `publicshare()` | `XDG_PUBLICSHARE_DIR`  | `~/Public`       | `~/Public`                      | `C:\Users\Public`          |
-| `runtime()`     | `XDG_RUNTIME_DIR`      | `/run/user/$UID` | `$TMPDIR` or `/tmp`             | `%TEMP%`                   |
-| `state_home()`  | `XDG_STATE_HOME`       | `~/.local/state` | `~/Library/Application Support` | `%LOCALAPPDATA%`           |
-| `templates()`   | `XDG_TEMPLATES_DIR`    | `~/Templates`    | `~/Templates`                   | `%USERPROFILE%\Templates`  |
-| `videos()`      | `XDG_VIDEOS_DIR`       | `~/Videos`       | `~/Movies`                      | `%USERPROFILE%\Videos`     |
-| `home()`        | `HOME` / `USERPROFILE` | `$HOME`          | `$HOME`                         | `%USERPROFILE%`            |
+| Method          | XDG Variable           | Linux Default        | macOS Default                    | Windows Default             |
+|-----------------|------------------------|----------------------|----------------------------------|-----------------------------|
+| `bin_home()`    | `XDG_BIN_HOME`         | `~/.local/bin`       | `~/.local/bin`                   | `%LOCALAPPDATA%\Programs`   |
+| `cache_home()`  | `XDG_CACHE_HOME`       | `~/.cache`           | `~/Library/Caches`               | `%LOCALAPPDATA%`            |
+| `config_home()` | `XDG_CONFIG_HOME`      | `~/.config`          | `~/Library/Application Support`  | `%APPDATA%`                 |
+| `data_home()`   | `XDG_DATA_HOME`        | `~/.local/share`     | `~/Library/Application Support`  | `%APPDATA%`                 |
+| `desktop()`     | `XDG_DESKTOP_DIR`      | `~/Desktop`          | `~/Desktop`                      | `%USERPROFILE%\Desktop`     |
+| `documents()`   | `XDG_DOCUMENTS_DIR`    | `~/Documents`        | `~/Documents`                    | `%USERPROFILE%\Documents`   |
+| `downloads()`   | `XDG_DOWNLOAD_DIR`     | `~/Downloads`        | `~/Downloads`                    | `%USERPROFILE%\Downloads`   |
+| `music()`       | `XDG_MUSIC_DIR`        | `~/Music`            | `~/Music`                        | `%USERPROFILE%\Music`       |
+| `pictures()`    | `XDG_PICTURES_DIR`     | `~/Pictures`         | `~/Pictures`                     | `%USERPROFILE%\Pictures`    |
+| `publicshare()` | `XDG_PUBLICSHARE_DIR`  | `~/Public`           | `~/Public`                       | `C:\Users\Public`           |
+| `runtime()`     | `XDG_RUNTIME_DIR`      | `$TMPDIR` or `/tmp`  | `$TMPDIR` or `/tmp`              | `%TEMP%`                    |
+| `state_home()`  | `XDG_STATE_HOME`       | `~/.local/state`     | `~/Library/Application Support`  | `%LOCALAPPDATA%`            |
+| `templates()`   | `XDG_TEMPLATES_DIR`    | `~/Templates`        | `~/Templates`                    | `%USERPROFILE%\Templates`   |
+| `videos()`      | `XDG_VIDEOS_DIR`       | `~/Videos`           | `~/Movies`                       | `%USERPROFILE%\Videos`      |
+| `home()`        | `HOME` / `USERPROFILE` | `$HOME`              | `$HOME`                          | `%USERPROFILE%`             |
 
 ## XDG Environment Variable Priority
 
@@ -125,9 +125,34 @@ let config_dir = Dir::config_home().unwrap_or_else(|| {
 });
 ```
 
+## Migration from 0.1.x
+
+Version 0.2.0 introduces breaking changes:
+
+- **Return type changed**: Methods now return `Option<PathBuf>` instead of `Result<PathBuf>`
+- **Removed deprecated methods**: All `*_dir()` variants have been removed
+- **No more eyre dependency**: Simpler error handling with Options
+
+Migration guide:
+
+```rust
+// 0.1.x
+let config = Dir::config_home()?;
+let desktop = Dir::desktop_dir()?;
+
+// 0.2.x
+let config = Dir::config_home().ok_or("Failed to get config dir")?;
+let desktop = Dir::desktop().ok_or("Failed to get desktop dir")?;
+
+// Or using if-let
+if let Some(config) = Dir::config_home() {
+    // use config
+}
+```
+
 ## Dependencies
 
-- `libc`: For Unix systems (accessing user database when `$HOME` isn't set)
+None! This crate only uses Rust's standard library.
 
 ## License
 
