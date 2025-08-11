@@ -3,16 +3,7 @@ runs:
   using: "composite"
   steps:
     - uses: jdx/mise-action@v2
+    - uses: Swatinem/rust-cache@v2
     - name: Setup
       shell: sh
       run: mise run setup
-    - name: Cache Cargo dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
