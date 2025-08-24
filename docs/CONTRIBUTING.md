@@ -178,34 +178,6 @@ mise run ci
    git push origin feature/your-feature-name
    ```
 
-## Project Structure
-
-```text
-dir_spec/
-├── src/
-│   ├── lib.rs          # Public API exports
-│   └── dir.rs          # Core directory resolution logic
-├── bin/
-│   ├── audit           # Dependency security and update checks
-│   ├── build           # Build the project
-│   ├── ci              # Run all CI checks
-│   ├── clean           # Clean build artifacts
-│   ├── lint/
-│   │   ├── _default    # Run all lint checks
-│   │   ├── check/
-│   │   │   ├── markdown # Check markdown formatting
-│   │   │   └── rust    # Check rust formatting/linting
-│   │   └── fix/
-│   │       ├── _default # Auto-fix all issues
-│   │       ├── markdown # Auto-fix markdown
-│   │       └── rust    # Auto-fix rust formatting
-│   ├── setup           # Install development dependencies
-│   └── test            # Run tests
-├── rust-toolchain.toml # Rust version specification
-├── rustfmt.toml        # Code formatting rules
-└── Cargo.toml          # Project configuration
-```
-
 ## Testing Guidelines
 
 ### Platform Coverage

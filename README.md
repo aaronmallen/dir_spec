@@ -1,5 +1,10 @@
 # dir_spec
 
+[![Crates.io](https://img.shields.io/crates/v/dir_spec?style=for-the-badge&logo=rust)][crate]
+[![Documentation](https://img.shields.io/docsrs/dir_spec?style=for-the-badge&logo=docsdotrs)][docsrs]
+![Codacy grade](https://img.shields.io/codacy/grade/ae4a182607fb467f9c8b8d92dd500fd4?style=for-the-badge&logo=codacy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
+
 A cross-platform Rust library for resolving XDG and platform-specific directories with proper fallbacks.
 
 ## Why Another Directory Library?
@@ -22,7 +27,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dir_spec = "0.2.0"
+dir_spec = "0.3.0"
 ```
 
 Basic usage:
@@ -183,7 +188,9 @@ Contributions are welcome! Please ensure:
 - [Apple File System Programming Guide][apple-guide]
 - [Windows Known Folder IDs][windows-folders]
 
-[xdg-spec]: https://specifications.freedesktop.org/basedir-spec/latest/
 [apple-guide]:
 https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/
+[crate]: https://crates.io/crates/dir_spec
+[docsrs]: https://docs.rs/dir_spec
+[xdg-spec]: https://specifications.freedesktop.org/basedir-spec/latest/
 [windows-folders]: https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid
