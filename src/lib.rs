@@ -104,6 +104,36 @@ impl Dir {
       .or_else(|| Self::get_platform_default("Library/Application Support", "APPDATA", ".config"))
   }
 
+  /// Returns the user's local configuration directory (non-roaming).
+  ///
+  /// This is primarily useful on Windows where it returns the local (non-roaming) config directory.
+  /// On other platforms, it behaves identically to `config_home()`.
+  ///
+  /// Platform defaults:
+  /// - **Linux**: `~/.config` (same as `config_home()`)
+  /// - **macOS**: `~/Library/Application Support` (same as `config_home()`)
+  /// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
+  ///
+  /// # Examples
+  ///
+  /// ```rust
+  /// use dir_spec::Dir;
+  /// if let Some(config_local) = Dir::config_local() {
+  ///     println!("Local config directory: {}", config_local.display());
+  /// }
+  /// ```
+  pub fn config_local() -> Option<PathBuf> {
+    #[cfg(target_os = "windows")]
+    {
+      env::var("LOCALAPPDATA").ok().map(PathBuf::from)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+      Self::config_home()
+    }
+  }
+
   /// Returns the user's data directory.
   ///
   /// Checks `XDG_DATA_HOME` first, then falls back to platform defaults:
@@ -122,6 +152,36 @@ impl Dir {
   pub fn data_home() -> Option<PathBuf> {
     Self::resolve_xdg_path("XDG_DATA_HOME")
       .or_else(|| Self::get_platform_default("Library/Application Support", "APPDATA", ".local/share"))
+  }
+
+  /// Returns the user's local data directory (non-roaming).
+  ///
+  /// This is primarily useful on Windows where it returns the local (non-roaming) data directory.
+  /// On other platforms, it behaves identically to `data_home()`.
+  ///
+  /// Platform defaults:
+  /// - **Linux**: `~/.local/share` (same as `data_home()`)
+  /// - **macOS**: `~/Library/Application Support` (same as `data_home()`)
+  /// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
+  ///
+  /// # Examples
+  ///
+  /// ```rust
+  /// use dir_spec::Dir;
+  /// if let Some(data_local) = Dir::data_local() {
+  ///     println!("Local data directory: {}", data_local.display());
+  /// }
+  /// ```
+  pub fn data_local() -> Option<PathBuf> {
+    #[cfg(target_os = "windows")]
+    {
+      env::var("LOCALAPPDATA").ok().map(PathBuf::from)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+      Self::data_home()
+    }
   }
 
   /// Returns the user's desktop directory.
@@ -181,6 +241,43 @@ impl Dir {
       .or_else(|| Self::get_platform_default_with_windows_subdir("Downloads", "USERPROFILE", "Downloads", "Downloads"))
   }
 
+  /// Returns the user's fonts directory.
+  ///
+  /// This directory is used for user-installed fonts.
+  /// Note: Returns `None` on Windows as there is no standard user fonts directory.
+  ///
+  /// Platform defaults:
+  /// - **Linux**: `~/.local/share/fonts`
+  /// - **macOS**: `~/Library/Fonts`
+  /// - **Windows**: `None` (no standard user fonts directory)
+  ///
+  /// # Examples
+  ///
+  /// ```rust
+  /// use dir_spec::Dir;
+  /// if let Some(fonts) = Dir::fonts() {
+  ///     println!("Fonts directory: {}", fonts.display());
+  /// } else {
+  ///     println!("No user fonts directory on this platform");
+  /// }
+  /// ```
+  pub fn fonts() -> Option<PathBuf> {
+    #[cfg(target_os = "macos")]
+    {
+      Self::home().map(|home| home.join("Library/Fonts"))
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+      Self::home().map(|home| home.join(".local/share/fonts"))
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+      None
+    }
+  }
+
   /// Returns the user's home directory.
   ///
   /// Uses the standard library's `std::env::home_dir()` function.
@@ -233,6 +330,36 @@ impl Dir {
   pub fn pictures() -> Option<PathBuf> {
     Self::resolve_xdg_path("XDG_PICTURES_DIR")
       .or_else(|| Self::get_platform_default_with_windows_subdir("Pictures", "USERPROFILE", "Pictures", "Pictures"))
+  }
+
+  /// Returns the user's preferences directory.
+  ///
+  /// This is primarily used on macOS for storing .plist files using Apple's proprietary APIs.
+  /// On other platforms, it behaves identically to `config_home()`.
+  ///
+  /// Platform defaults:
+  /// - **Linux**: `~/.config` (same as `config_home()`)
+  /// - **macOS**: `~/Library/Preferences` (for .plist files)
+  /// - **Windows**: `%APPDATA%` (same as `config_home()`)
+  ///
+  /// # Examples
+  ///
+  /// ```rust
+  /// use dir_spec::Dir;
+  /// if let Some(preferences) = Dir::preferences() {
+  ///     println!("Preferences directory: {}", preferences.display());
+  /// }
+  /// ```
+  pub fn preferences() -> Option<PathBuf> {
+    #[cfg(target_os = "macos")]
+    {
+      Self::home().map(|home| home.join("Library/Preferences"))
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+      Self::config_home()
+    }
   }
 
   /// Returns the user's public share directory.
@@ -592,5 +719,81 @@ mod tests {
         assert!(public_path.to_string_lossy().ends_with("Public"));
       }
     });
+  }
+
+  #[test]
+  fn test_config_local_default() {
+    let config_local = Dir::config_local();
+    if let Some(config_local_path) = config_local {
+      assert!(config_local_path.is_absolute());
+
+      #[cfg(target_os = "windows")]
+      {
+        // On Windows, config_local should use LOCALAPPDATA
+        let localappdata = env::var("LOCALAPPDATA").ok().map(PathBuf::from);
+        assert_eq!(Some(config_local_path), localappdata);
+      }
+
+      #[cfg(not(target_os = "windows"))]
+      {
+        // On non-Windows, should be same as config_home
+        assert_eq!(Some(config_local_path), Dir::config_home());
+      }
+    }
+  }
+
+  #[test]
+  fn test_data_local_default() {
+    let data_local = Dir::data_local();
+    if let Some(data_local_path) = data_local {
+      assert!(data_local_path.is_absolute());
+
+      #[cfg(target_os = "windows")]
+      {
+        // On Windows, data_local should use LOCALAPPDATA
+        let localappdata = env::var("LOCALAPPDATA").ok().map(PathBuf::from);
+        assert_eq!(Some(data_local_path), localappdata);
+      }
+
+      #[cfg(not(target_os = "windows"))]
+      {
+        // On non-Windows, should be same as data_home
+        assert_eq!(Some(data_local_path), Dir::data_home());
+      }
+    }
+  }
+
+  #[test]
+  fn test_fonts_platform_differences() {
+    let fonts = Dir::fonts();
+
+    #[cfg(target_os = "linux")]
+    if let Some(fonts_path) = fonts {
+      assert!(fonts_path.is_absolute());
+      assert!(fonts_path.to_string_lossy().ends_with(".local/share/fonts"));
+    }
+
+    #[cfg(target_os = "macos")]
+    if let Some(fonts_path) = fonts {
+      assert!(fonts_path.is_absolute());
+      assert!(fonts_path.to_string_lossy().ends_with("Library/Fonts"));
+    }
+
+    #[cfg(target_os = "windows")]
+    assert_eq!(fonts, None);
+  }
+
+  #[test]
+  fn test_preferences_platform_differences() {
+    let preferences = Dir::preferences();
+    if let Some(preferences_path) = preferences {
+      assert!(preferences_path.is_absolute());
+
+      #[cfg(target_os = "macos")]
+      assert!(preferences_path.to_string_lossy().ends_with("Library/Preferences"));
+
+      #[cfg(not(target_os = "macos"))]
+      assert_eq!(Some(preferences_path), Dir::config_home());
+    }
   }
 }
