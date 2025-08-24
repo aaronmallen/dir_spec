@@ -2,5 +2,10 @@
 includes = ["bin"]
 
 [tools]
+"cargo:cargo-audit" = "latest"
+"cargo:cargo-llvm-cov" = "latest"
+"cargo:cargo-nextest" = "latest"
+"cargo:cargo-outdated" = "latest"
+"cargo:cargo-sort" = "latest"
 "npm:markdownlint-cli" = "latest"
-rust = "1.89"
+rust = { version = "nightly", components = "clippy,llvm-tools-preview,rustfmt,rust-src" }
