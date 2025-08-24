@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 ## [Unreleased]
 
+### Added
+
+* `config_local()` - Returns user's local (non-roaming) config directory. On Windows uses `%LOCALAPPDATA%`, identical
+  to `config_home()` on other platforms
+* `data_local()` - Returns user's local (non-roaming) data directory. On Windows uses `%LOCALAPPDATA%`, identical to
+  `data_home()` on other platforms
+* `fonts()` - Returns user's fonts directory
+  (`~/.local/share/fonts` on Linux, `~/Library/Fonts` on macOS, `None` on Windows)
+* `preferences()` - Returns user's preferences directory. On macOS returns `~/Library/Preferences` for .plist files,
+  identical to `config_home()` on other platforms
+
 ## [0.2.0] - 2025-08-10
 
 ### Changed
