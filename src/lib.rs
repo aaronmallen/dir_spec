@@ -554,246 +554,781 @@ impl Dir {
 mod tests {
   use super::*;
 
-  #[test]
-  fn test_resolve_xdg_path_absolute() {
-    temp_env::with_var("TEST_XDG_VAR", Some("/absolute/path"), || {
-      let result = Dir::resolve_xdg_path("TEST_XDG_VAR");
-      assert_eq!(result, Some(PathBuf::from("/absolute/path")));
-    });
-  }
+  mod bin_home {
+    use temp_env::{with_var, with_var_unset};
 
-  #[test]
-  fn test_resolve_xdg_path_relative_ignored() {
-    temp_env::with_var("TEST_XDG_VAR", Some("relative/path"), || {
-      let result = Dir::resolve_xdg_path("TEST_XDG_VAR");
-      assert_eq!(result, None);
-    });
-  }
+    use super::*;
 
-  #[test]
-  fn test_resolve_xdg_path_unset() {
-    temp_env::with_var_unset("TEST_XDG_VAR", || {
-      let result = Dir::resolve_xdg_path("TEST_XDG_VAR");
-      assert_eq!(result, None);
-    });
-  }
+    #[test]
+    fn respects_xdg_bin_home() {
+      let test_path = if cfg!(windows) { "C:\\test\\bin" } else { "/test/bin" };
+      with_var("XDG_BIN_HOME", Some(test_path), || {
+        let result = Dir::bin_home();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
 
-  #[test]
-  fn test_home_directory() {
-    let home = Dir::home();
-    if let Some(home_path) = home {
-      assert!(home_path.is_absolute());
+    #[test]
+    fn ignores_relative_xdg_bin_home() {
+      with_var("XDG_BIN_HOME", Some("relative/bin"), || {
+        let result = Dir::bin_home();
+
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_BIN_HOME", || {
+        let result = Dir::bin_home();
+        if let Some(bin_path) = result {
+          assert!(bin_path.is_absolute());
+
+          #[cfg(any(target_os = "linux", target_os = "macos"))]
+          assert!(bin_path.to_string_lossy().ends_with(".local/bin"));
+
+          #[cfg(target_os = "windows")]
+          assert!(bin_path.to_string_lossy().contains("Programs"));
+        }
+      });
     }
   }
 
-  #[test]
-  fn test_config_home_default() {
-    temp_env::with_var_unset("XDG_CONFIG_HOME", || {
-      let config = Dir::config_home();
-      if let Some(config_path) = config {
-        assert!(config_path.is_absolute());
+  mod cache_home {
+    use temp_env::{with_var, with_var_unset};
 
-        #[cfg(target_os = "linux")]
-        assert!(config_path.to_string_lossy().ends_with(".config"));
+    use super::*;
 
-        #[cfg(target_os = "macos")]
-        assert!(config_path.to_string_lossy().contains("Library/Application Support"));
-      }
-    });
+    #[test]
+    fn respects_xdg_cache_home() {
+      let test_path = if cfg!(windows) { "C:\\test\\cache" } else { "/test/cache" };
+      with_var("XDG_CACHE_HOME", Some(test_path), || {
+        let result = Dir::cache_home();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_cache_home() {
+      with_var("XDG_CACHE_HOME", Some("relative/cache"), || {
+        let result = Dir::cache_home();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_CACHE_HOME", || {
+        let result = Dir::cache_home();
+        if let Some(cache_path) = result {
+          assert!(cache_path.is_absolute());
+
+          #[cfg(target_os = "linux")]
+          assert!(cache_path.to_string_lossy().ends_with(".cache"));
+
+          #[cfg(target_os = "macos")]
+          assert!(cache_path.to_string_lossy().contains("Library/Caches"));
+
+          #[cfg(target_os = "windows")]
+          {
+            if let Ok(localappdata) = env::var("LOCALAPPDATA") {
+              assert_eq!(cache_path, PathBuf::from(localappdata));
+            }
+          }
+        }
+      });
+    }
   }
 
-  #[test]
-  fn test_config_home_xdg_override() {
-    let test_path = if cfg!(windows) { "C:\\test\\config" } else { "/test/config" };
-    temp_env::with_var("XDG_CONFIG_HOME", Some(test_path), || {
-      let config = Dir::config_home();
-      assert_eq!(config, Some(PathBuf::from(test_path)));
-    });
+  mod config_home {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_config_home() {
+      let test_path = if cfg!(windows) { "C:\\test\\config" } else { "/test/config" };
+      with_var("XDG_CONFIG_HOME", Some(test_path), || {
+        let result = Dir::config_home();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_config_home() {
+      with_var("XDG_CONFIG_HOME", Some("relative/config"), || {
+        let result = Dir::config_home();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_CONFIG_HOME", || {
+        let result = Dir::config_home();
+        if let Some(config_path) = result {
+          assert!(config_path.is_absolute());
+
+          #[cfg(target_os = "linux")]
+          assert!(config_path.to_string_lossy().ends_with(".config"));
+
+          #[cfg(target_os = "macos")]
+          assert!(config_path.to_string_lossy().contains("Library/Application Support"));
+
+          #[cfg(target_os = "windows")]
+          {
+            if let Ok(appdata) = env::var("APPDATA") {
+              assert_eq!(config_path, PathBuf::from(appdata));
+            }
+          }
+        }
+      });
+    }
   }
 
-  #[test]
-  fn test_cache_home_default() {
-    temp_env::with_var_unset("XDG_CACHE_HOME", || {
-      let cache = Dir::cache_home();
-      if let Some(cache_path) = cache {
-        assert!(cache_path.is_absolute());
+  mod config_local {
+    use super::*;
 
-        #[cfg(target_os = "linux")]
-        assert!(cache_path.to_string_lossy().ends_with(".cache"));
-
-        #[cfg(target_os = "macos")]
-        assert!(cache_path.to_string_lossy().contains("Library/Caches"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_data_home_default() {
-    temp_env::with_var_unset("XDG_DATA_HOME", || {
-      let data = Dir::data_home();
-      if let Some(data_path) = data {
-        assert!(data_path.is_absolute());
-
-        #[cfg(target_os = "linux")]
-        assert!(data_path.to_string_lossy().ends_with(".local/share"));
-
-        #[cfg(target_os = "macos")]
-        assert!(data_path.to_string_lossy().contains("Library/Application Support"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_bin_home_default() {
-    temp_env::with_var_unset("XDG_BIN_HOME", || {
-      let bin = Dir::bin_home();
-      if let Some(bin_path) = bin {
-        assert!(bin_path.is_absolute());
-
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        assert!(bin_path.to_string_lossy().ends_with(".local/bin"));
+    #[test]
+    fn uses_localappdata_on_windows() {
+      let result = Dir::config_local();
+      if let Some(config_local_path) = result {
+        assert!(config_local_path.is_absolute());
 
         #[cfg(target_os = "windows")]
-        assert!(bin_path.to_string_lossy().contains("Programs"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_runtime_default() {
-    temp_env::with_var_unset("XDG_RUNTIME_DIR", || {
-      let runtime = Dir::runtime();
-      if let Some(runtime_path) = runtime {
-        assert!(runtime_path.is_absolute());
-
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
         {
-          let path_str = runtime_path.to_string_lossy();
-          assert!(path_str.contains("tmp") || path_str.starts_with("/var/folders"));
+          if let Ok(localappdata) = env::var("LOCALAPPDATA") {
+            assert_eq!(config_local_path, PathBuf::from(localappdata));
+          }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+          assert_eq!(Some(config_local_path), Dir::config_home());
         }
       }
-    });
-  }
+    }
 
-  #[test]
-  fn test_desktop_default() {
-    temp_env::with_var_unset("XDG_DESKTOP_DIR", || {
-      let desktop = Dir::desktop();
-      if let Some(desktop_path) = desktop {
-        assert!(desktop_path.is_absolute());
-        assert!(desktop_path.to_string_lossy().ends_with("Desktop"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_videos_platform_differences() {
-    temp_env::with_var_unset("XDG_VIDEOS_DIR", || {
-      let videos = Dir::videos();
-      if let Some(videos_path) = videos {
-        assert!(videos_path.is_absolute());
-
-        #[cfg(target_os = "linux")]
-        assert!(videos_path.to_string_lossy().ends_with("Videos"));
-
-        #[cfg(target_os = "macos")]
-        assert!(videos_path.to_string_lossy().ends_with("Movies"));
-
-        #[cfg(target_os = "windows")]
-        assert!(videos_path.to_string_lossy().ends_with("Videos"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_publicshare_windows_absolute() {
-    temp_env::with_var_unset("XDG_PUBLICSHARE_DIR", || {
-      let public = Dir::publicshare();
-      if let Some(public_path) = public {
-        assert!(public_path.is_absolute());
-
-        #[cfg(target_os = "windows")]
-        assert_eq!(public_path, PathBuf::from("C:\\Users\\Public"));
-
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        assert!(public_path.to_string_lossy().ends_with("Public"));
-      }
-    });
-  }
-
-  #[test]
-  fn test_config_local_default() {
-    let config_local = Dir::config_local();
-    if let Some(config_local_path) = config_local {
-      assert!(config_local_path.is_absolute());
-
-      #[cfg(target_os = "windows")]
-      {
-        // On Windows, config_local should use LOCALAPPDATA
-        let localappdata = env::var("LOCALAPPDATA").ok().map(PathBuf::from);
-        assert_eq!(Some(config_local_path), localappdata);
-      }
-
+    #[test]
+    fn matches_config_home_on_non_windows() {
       #[cfg(not(target_os = "windows"))]
       {
-        // On non-Windows, should be same as config_home
-        assert_eq!(Some(config_local_path), Dir::config_home());
+        let config_local = Dir::config_local();
+        let config_home = Dir::config_home();
+        assert_eq!(config_local, config_home);
       }
     }
   }
 
-  #[test]
-  fn test_data_local_default() {
-    let data_local = Dir::data_local();
-    if let Some(data_local_path) = data_local {
-      assert!(data_local_path.is_absolute());
+  mod data_home {
+    use temp_env::{with_var, with_var_unset};
 
-      #[cfg(target_os = "windows")]
-      {
-        // On Windows, data_local should use LOCALAPPDATA
-        let localappdata = env::var("LOCALAPPDATA").ok().map(PathBuf::from);
-        assert_eq!(Some(data_local_path), localappdata);
+    use super::*;
+
+    #[test]
+    fn respects_xdg_data_home() {
+      let test_path = if cfg!(windows) { "C:\\test\\data" } else { "/test/data" };
+      with_var("XDG_DATA_HOME", Some(test_path), || {
+        let result = Dir::data_home();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_data_home() {
+      with_var("XDG_DATA_HOME", Some("relative/data"), || {
+        let result = Dir::data_home();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_DATA_HOME", || {
+        let result = Dir::data_home();
+        if let Some(data_path) = result {
+          assert!(data_path.is_absolute());
+
+          #[cfg(target_os = "linux")]
+          assert!(data_path.to_string_lossy().ends_with(".local/share"));
+
+          #[cfg(target_os = "macos")]
+          assert!(data_path.to_string_lossy().contains("Library/Application Support"));
+
+          #[cfg(target_os = "windows")]
+          {
+            if let Ok(appdata) = env::var("APPDATA") {
+              assert_eq!(data_path, PathBuf::from(appdata));
+            }
+          }
+        }
+      });
+    }
+  }
+
+  mod data_local {
+    use super::*;
+
+    #[test]
+    fn uses_localappdata_on_windows() {
+      let result = Dir::data_local();
+      if let Some(data_local_path) = result {
+        assert!(data_local_path.is_absolute());
+
+        #[cfg(target_os = "windows")]
+        {
+          if let Ok(localappdata) = env::var("LOCALAPPDATA") {
+            assert_eq!(data_local_path, PathBuf::from(localappdata));
+          }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+          assert_eq!(Some(data_local_path), Dir::data_home());
+        }
       }
+    }
 
+    #[test]
+    fn matches_data_home_on_non_windows() {
       #[cfg(not(target_os = "windows"))]
       {
-        // On non-Windows, should be same as data_home
-        assert_eq!(Some(data_local_path), Dir::data_home());
+        let data_local = Dir::data_local();
+        let data_home = Dir::data_home();
+        assert_eq!(data_local, data_home);
       }
     }
   }
 
-  #[test]
-  fn test_fonts_platform_differences() {
-    let fonts = Dir::fonts();
+  mod desktop {
+    use temp_env::{with_var, with_var_unset};
 
-    #[cfg(target_os = "linux")]
-    if let Some(fonts_path) = fonts {
-      assert!(fonts_path.is_absolute());
-      assert!(fonts_path.to_string_lossy().ends_with(".local/share/fonts"));
+    use super::*;
+
+    #[test]
+    fn respects_xdg_desktop_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\desktop" } else { "/test/desktop" };
+      with_var("XDG_DESKTOP_DIR", Some(test_path), || {
+        let result = Dir::desktop();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
     }
 
-    #[cfg(target_os = "macos")]
-    if let Some(fonts_path) = fonts {
-      assert!(fonts_path.is_absolute());
-      assert!(fonts_path.to_string_lossy().ends_with("Library/Fonts"));
+    #[test]
+    fn ignores_relative_xdg_desktop_dir() {
+      with_var("XDG_DESKTOP_DIR", Some("relative/desktop"), || {
+        let result = Dir::desktop();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
     }
 
-    #[cfg(target_os = "windows")]
-    assert_eq!(fonts, None);
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_DESKTOP_DIR", || {
+        let result = Dir::desktop();
+        if let Some(desktop_path) = result {
+          assert!(desktop_path.is_absolute());
+          assert!(desktop_path.to_string_lossy().ends_with("Desktop"));
+        }
+      });
+    }
   }
 
-  #[test]
-  fn test_preferences_platform_differences() {
-    let preferences = Dir::preferences();
-    if let Some(preferences_path) = preferences {
-      assert!(preferences_path.is_absolute());
+  mod documents {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_documents_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\documents" } else { "/test/documents" };
+      with_var("XDG_DOCUMENTS_DIR", Some(test_path), || {
+        let result = Dir::documents();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_documents_dir() {
+      with_var("XDG_DOCUMENTS_DIR", Some("relative/documents"), || {
+        let result = Dir::documents();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_DOCUMENTS_DIR", || {
+        let result = Dir::documents();
+        if let Some(documents_path) = result {
+          assert!(documents_path.is_absolute());
+          assert!(documents_path.to_string_lossy().ends_with("Documents"));
+        }
+      });
+    }
+  }
+
+  mod downloads {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_download_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\downloads" } else { "/test/downloads" };
+      with_var("XDG_DOWNLOAD_DIR", Some(test_path), || {
+        let result = Dir::downloads();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_download_dir() {
+      with_var("XDG_DOWNLOAD_DIR", Some("relative/downloads"), || {
+        let result = Dir::downloads();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_DOWNLOAD_DIR", || {
+        let result = Dir::downloads();
+        if let Some(downloads_path) = result {
+          assert!(downloads_path.is_absolute());
+          assert!(downloads_path.to_string_lossy().ends_with("Downloads"));
+        }
+      });
+    }
+  }
+
+  mod fonts {
+    use super::*;
+
+    #[test]
+    fn returns_platform_specific_path() {
+      let result = Dir::fonts();
+
+      #[cfg(target_os = "linux")]
+      if let Some(fonts_path) = result {
+        assert!(fonts_path.is_absolute());
+        assert!(fonts_path.to_string_lossy().ends_with(".local/share/fonts"));
+      }
 
       #[cfg(target_os = "macos")]
-      assert!(preferences_path.to_string_lossy().ends_with("Library/Preferences"));
+      if let Some(fonts_path) = result {
+        assert!(fonts_path.is_absolute());
+        assert!(fonts_path.to_string_lossy().ends_with("Library/Fonts"));
+      }
 
+      #[cfg(target_os = "windows")]
+      assert_eq!(result, None);
+    }
+
+    #[test]
+    fn returns_none_on_windows() {
+      #[cfg(target_os = "windows")]
+      {
+        let result = Dir::fonts();
+        assert_eq!(result, None);
+      }
+    }
+
+    #[test]
+    fn returns_some_on_unix() {
+      #[cfg(any(target_os = "linux", target_os = "macos"))]
+      {
+        let result = Dir::fonts();
+        assert!(result.is_some());
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      }
+    }
+  }
+
+  mod home {
+    use super::*;
+
+    #[test]
+    fn returns_absolute_path_when_available() {
+      let result = Dir::home();
+      if let Some(home_path) = result {
+        assert!(home_path.is_absolute());
+      }
+    }
+
+    #[test]
+    fn delegates_to_std_env_home_dir() {
+      let std_result = std::env::home_dir();
+      let our_result = Dir::home();
+      assert_eq!(std_result, our_result);
+    }
+  }
+
+  mod music {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_music_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\music" } else { "/test/music" };
+      with_var("XDG_MUSIC_DIR", Some(test_path), || {
+        let result = Dir::music();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_music_dir() {
+      with_var("XDG_MUSIC_DIR", Some("relative/music"), || {
+        let result = Dir::music();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_MUSIC_DIR", || {
+        let result = Dir::music();
+        if let Some(music_path) = result {
+          assert!(music_path.is_absolute());
+          assert!(music_path.to_string_lossy().ends_with("Music"));
+        }
+      });
+    }
+  }
+
+  mod pictures {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_pictures_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\pictures" } else { "/test/pictures" };
+      with_var("XDG_PICTURES_DIR", Some(test_path), || {
+        let result = Dir::pictures();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_pictures_dir() {
+      with_var("XDG_PICTURES_DIR", Some("relative/pictures"), || {
+        let result = Dir::pictures();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_PICTURES_DIR", || {
+        let result = Dir::pictures();
+        if let Some(pictures_path) = result {
+          assert!(pictures_path.is_absolute());
+          assert!(pictures_path.to_string_lossy().ends_with("Pictures"));
+        }
+      });
+    }
+  }
+
+  mod preferences {
+    use super::*;
+
+    #[test]
+    fn returns_platform_specific_path() {
+      let result = Dir::preferences();
+      if let Some(preferences_path) = result {
+        assert!(preferences_path.is_absolute());
+
+        #[cfg(target_os = "macos")]
+        assert!(preferences_path.to_string_lossy().ends_with("Library/Preferences"));
+
+        #[cfg(not(target_os = "macos"))]
+        assert_eq!(Some(preferences_path), Dir::config_home());
+      }
+    }
+
+    #[test]
+    fn matches_config_home_on_non_macos() {
       #[cfg(not(target_os = "macos"))]
-      assert_eq!(Some(preferences_path), Dir::config_home());
+      {
+        let preferences = Dir::preferences();
+        let config_home = Dir::config_home();
+        assert_eq!(preferences, config_home);
+      }
+    }
+
+    #[test]
+    fn uses_library_preferences_on_macos() {
+      #[cfg(target_os = "macos")]
+      {
+        let result = Dir::preferences();
+        if let Some(path) = result {
+          assert!(path.to_string_lossy().ends_with("Library/Preferences"));
+        }
+      }
+    }
+  }
+
+  mod publicshare {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_publicshare_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\public" } else { "/test/public" };
+      with_var("XDG_PUBLICSHARE_DIR", Some(test_path), || {
+        let result = Dir::publicshare();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_publicshare_dir() {
+      with_var("XDG_PUBLICSHARE_DIR", Some("relative/public"), || {
+        let result = Dir::publicshare();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_PUBLICSHARE_DIR", || {
+        let result = Dir::publicshare();
+        if let Some(public_path) = result {
+          assert!(public_path.is_absolute());
+
+          #[cfg(target_os = "windows")]
+          assert_eq!(public_path, PathBuf::from("C:\\Users\\Public"));
+
+          #[cfg(any(target_os = "linux", target_os = "macos"))]
+          assert!(public_path.to_string_lossy().ends_with("Public"));
+        }
+      });
+    }
+
+    #[test]
+    fn uses_system_public_on_windows() {
+      #[cfg(target_os = "windows")]
+      {
+        with_var_unset("XDG_PUBLICSHARE_DIR", || {
+          let result = Dir::publicshare();
+          assert_eq!(result, Some(PathBuf::from("C:\\Users\\Public")));
+        });
+      }
+    }
+  }
+
+  mod runtime {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_runtime_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\runtime" } else { "/test/runtime" };
+      with_var("XDG_RUNTIME_DIR", Some(test_path), || {
+        let result = Dir::runtime();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_runtime_dir() {
+      with_var("XDG_RUNTIME_DIR", Some("relative/runtime"), || {
+        let result = Dir::runtime();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_RUNTIME_DIR", || {
+        let result = Dir::runtime();
+        if let Some(runtime_path) = result {
+          assert!(runtime_path.is_absolute());
+
+          #[cfg(any(target_os = "linux", target_os = "macos"))]
+          {
+            let path_str = runtime_path.to_string_lossy();
+            assert!(path_str.contains("tmp") || path_str.starts_with("/var/folders"));
+          }
+
+          #[cfg(target_os = "windows")]
+          {
+            if let Ok(temp) = env::var("TEMP") {
+              assert_eq!(runtime_path, PathBuf::from(temp));
+            }
+          }
+        }
+      });
+    }
+
+    #[test]
+    fn falls_back_to_tmp_on_unix() {
+      #[cfg(any(target_os = "linux", target_os = "macos"))]
+      {
+        with_var_unset("XDG_RUNTIME_DIR", || {
+          with_var_unset("TMPDIR", || {
+            let result = Dir::runtime();
+            assert_eq!(result, Some(PathBuf::from("/tmp")));
+          });
+        });
+      }
+    }
+  }
+
+  mod state_home {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_state_home() {
+      let test_path = if cfg!(windows) { "C:\\test\\state" } else { "/test/state" };
+      with_var("XDG_STATE_HOME", Some(test_path), || {
+        let result = Dir::state_home();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_state_home() {
+      with_var("XDG_STATE_HOME", Some("relative/state"), || {
+        let result = Dir::state_home();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_STATE_HOME", || {
+        let result = Dir::state_home();
+        if let Some(state_path) = result {
+          assert!(state_path.is_absolute());
+
+          #[cfg(target_os = "linux")]
+          assert!(state_path.to_string_lossy().ends_with(".local/state"));
+
+          #[cfg(target_os = "macos")]
+          assert!(state_path.to_string_lossy().contains("Library/Application Support"));
+
+          #[cfg(target_os = "windows")]
+          {
+            if let Ok(localappdata) = env::var("LOCALAPPDATA") {
+              assert_eq!(state_path, PathBuf::from(localappdata));
+            }
+          }
+        }
+      });
+    }
+  }
+
+  mod templates {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_templates_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\templates" } else { "/test/templates" };
+      with_var("XDG_TEMPLATES_DIR", Some(test_path), || {
+        let result = Dir::templates();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_templates_dir() {
+      with_var("XDG_TEMPLATES_DIR", Some("relative/templates"), || {
+        let result = Dir::templates();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_TEMPLATES_DIR", || {
+        let result = Dir::templates();
+        if let Some(templates_path) = result {
+          assert!(templates_path.is_absolute());
+          assert!(templates_path.to_string_lossy().ends_with("Templates"));
+        }
+      });
+    }
+  }
+
+  mod videos {
+    use temp_env::{with_var, with_var_unset};
+
+    use super::*;
+
+    #[test]
+    fn respects_xdg_videos_dir() {
+      let test_path = if cfg!(windows) { "C:\\test\\videos" } else { "/test/videos" };
+      with_var("XDG_VIDEOS_DIR", Some(test_path), || {
+        let result = Dir::videos();
+        assert_eq!(result, Some(PathBuf::from(test_path)));
+      });
+    }
+
+    #[test]
+    fn ignores_relative_xdg_videos_dir() {
+      with_var("XDG_VIDEOS_DIR", Some("relative/videos"), || {
+        let result = Dir::videos();
+        if let Some(path) = result {
+          assert!(path.is_absolute());
+        }
+      });
+    }
+
+    #[test]
+    fn uses_platform_default_when_xdg_unset() {
+      with_var_unset("XDG_VIDEOS_DIR", || {
+        let result = Dir::videos();
+        if let Some(videos_path) = result {
+          assert!(videos_path.is_absolute());
+
+          #[cfg(target_os = "linux")]
+          assert!(videos_path.to_string_lossy().ends_with("Videos"));
+
+          #[cfg(target_os = "macos")]
+          assert!(videos_path.to_string_lossy().ends_with("Movies"));
+
+          #[cfg(target_os = "windows")]
+          assert!(videos_path.to_string_lossy().ends_with("Videos"));
+        }
+      });
     }
   }
 }
