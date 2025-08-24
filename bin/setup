@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 #MISE description="install dependencies and setup the dev environment"
 
-cargo install cargo-audit cargo-outdated cargo-sort
+rustup component add --toolchain nightly-x86_64-unknown-linux-gnu clippy
+cargo install cargo-audit cargo-llvm-cov cargo-nextest cargo-outdated cargo-sort
