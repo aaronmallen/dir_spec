@@ -11,6 +11,9 @@ readme = "README.md"
 keywords = ["xdg", "directories", "cross-platform", "filesystem", "config"]
 categories = ["filesystem", "os", "config"]
 
+[dev-dependencies]
+temp-env = "0.3"
+
 [lints.clippy]
 complexity = { level = "warn", priority = -1 }
 correctness = { level = "warn", priority = -1 }
