@@ -2,7 +2,7 @@ name: Shared Setup
 runs:
   using: "composite"
   steps:
-    - uses: jdx/mise-action@v2
+    - uses: jdx/mise-action@v3
     - uses: Swatinem/rust-cache@v2
     - name: Setup
       shell: sh
