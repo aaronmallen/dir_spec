@@ -27,7 +27,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dir_spec = "0.3.0"
+dir_spec = "0.4.0"
 ```
 
 Basic usage:

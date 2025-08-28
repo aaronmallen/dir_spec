@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-08-28
+
+### Changed
+
+* Refactored internal architecture to use platform-specific modules (`linux.rs`, `macos.rs`, `windows.rs`) for improved
+  code organization and maintainability
+* Extracted XDG Base Directory Specification logic into dedicated `xdg` module with reusable helper functions
+* Replaced inline conditional compilation scattered throughout `lib.rs` with clean module delegation pattern
+
 ## [0.3.0] - 2025-08-24
 
 ### Added
@@ -80,7 +89,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 <!-- versions -->
 
-[Unreleased]: https://github.com/aaronmallen/dir_spec/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/aaronmallen/dir_spec/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/aaronmallen/dir_spec/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/aaronmallen/dir_spec/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/aaronmallen/dir_spec/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/aaronmallen/dir_spec/compare/0.0.1...0.1.0
