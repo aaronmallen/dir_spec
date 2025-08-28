@@ -1,7 +1,7 @@
 # dir_spec
 
 [![Crates.io](https://img.shields.io/crates/v/dir_spec?style=for-the-badge&logo=rust)][crate]
-[![Build](https://github.com/aaronmallen/dir_spec/actions/workflows/build.yml/badge.svg)][build]
+[![Build][build-badge]][build]
 [![Documentation](https://img.shields.io/docsrs/dir_spec?style=for-the-badge&logo=docsdotrs)][docsrs]
 ![Codacy grade](https://img.shields.io/codacy/grade/ae4a182607fb467f9c8b8d92dd500fd4?style=for-the-badge&logo=codacy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
@@ -192,6 +192,8 @@ Contributions are welcome! Please ensure:
 [apple-guide]:
 https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/
 [build]: https://github.com/aaronmallen/dir_spec/actions/workflows/build.yml
+[build-badge]:
+https://img.shields.io/github/actions/workflow/status/aaronmallen/dir_spec/build.yml?style=for-the-badge&logo=githubactions&logoColor=white
 [crate]: https://crates.io/crates/dir_spec
 [docsrs]: https://docs.rs/dir_spec
 [xdg-spec]: https://specifications.freedesktop.org/basedir-spec/latest/
