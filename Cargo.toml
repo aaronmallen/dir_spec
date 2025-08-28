@@ -1,6 +1,6 @@
 [package]
 name = "dir_spec"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 description = "A cross-platform Rust library for resolving XDG and platform-specific directories with proper fallbacks."
 authors = ["Aaron Allen (@aaronmallen)"]
