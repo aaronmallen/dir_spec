@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#MISE description="lint shell files"
+#MISE alias=["l:c:sh", "l:c:shell", "l:check:sh", "lint:c:shell", "lint:c:sh", "lint:check:sh"]
+
+if command -v shellcheck >/dev/null 2>&1; then
+  find bin/ -type f -print0 | \
+    xargs -0 grep -l '^#!/.*sh' 2>/dev/null | \
+    while IFS= read -r file; do
+      shellcheck "$file"
+    done
+fi

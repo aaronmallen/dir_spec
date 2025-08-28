@@ -18,14 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
-      - name: Toolchain
-        run: |
-          rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
-          rustup component add --toolchain 1.89.0-x86_64-unknown-linux-gnu clippy
-      - name: Markdownlint
-        run: mise run lint:check:markdown
-      - name: Cargo Lint
-        run: mise run lint:check:rust
+      - name: Lint
+        run: mise run lint
 
   test:
     runs-on: ${{ matrix.os }}
@@ -35,8 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
-      - name: Cargo test
-        run: mise run test
+      - name: Test
+        run: mise run test:coverage
 
   package:
     runs-on: ${{ matrix.os }}

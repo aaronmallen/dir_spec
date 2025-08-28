@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-#MISE description="run unit tests"
-#MISE alias=["t"]
-
-cargo llvm-cov nextest --branch --summary-only
-cargo llvm-cov report --branch --html --output-dir coverage
-cargo llvm-cov report --branch --lcov --output-path coverage/lcov.info

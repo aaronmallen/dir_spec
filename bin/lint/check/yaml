@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint yaml files"
+#MISE alias=["l:c:yml", "l:c:yaml", "l:check:yml", "lint:c:yaml", "lint:c:yml", "lint:check:yaml"]
+
+if command -v yamllint >/dev/null 2>&1; then
+  yamllint .
+fi

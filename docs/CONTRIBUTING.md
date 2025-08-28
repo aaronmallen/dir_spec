@@ -17,30 +17,30 @@ dependencies and toolchain setup:
 
 1. **Clone the repository**
 
-   ```bash
-   git clone https://github.com/aaronmallen/dir_spec.git
-   cd dir_spec
-   ```
+    ```bash
+    git clone https://github.com/aaronmallen/dir_spec.git
+    cd dir_spec
+    ```
 
 2. **Install mise**
 
-   ```bash
-   curl https://mise.jdx.dev/install.sh | sh
-   ```
+    ```bash
+    curl https://mise.jdx.dev/install.sh | sh
+    ```
 
 3. **Install tools and dependencies**
 
-   ```bash
-   mise install
-   mise run setup
-   ```
+    ```bash
+    mise install
+    mise run setup
+    ```
 
 4. **Verify setup**
 
-   ```bash
-   mise run test
-   mise run lint:check:rust
-   ```
+    ```bash
+    mise run test
+    mise run lint:check:rust
+    ```
 
 ### Alternative: Manual Setup
 
@@ -48,23 +48,23 @@ If you prefer not to use mise, you can use our setup script:
 
 1. **Install Rust toolchain**
 
-   ```bash
-   # The project will automatically use the toolchain specified in rust-toolchain.toml
-   rustup component add clippy rustfmt
-   ```
+    ```bash
+    # The project will automatically use the toolchain specified in rust-toolchain.toml
+    rustup component add clippy rustfmt
+    ```
 
 2. **Install development tools**
 
-   ```bash
-   ./bin/setup
-   ```
+    ```bash
+    ./bin/setup
+    ```
 
 3. **Verify setup**
 
-   ```bash
-   ./bin/test
-   ./bin/lint/check/rust
-   ```
+    ```bash
+    ./bin/test/_default
+    ./bin/lint/check/rust
+    ```
 
 ## Development Workflow
 
@@ -143,9 +143,9 @@ mise run ci
 
 #### Create a feature branch
 
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+```bash
+git checkout -b feature/your-feature-name
+```
 
 #### *Make your changes
 
@@ -155,28 +155,28 @@ mise run ci
 
 #### Test your changes
 
-   ```bash
-   # Recommended: Use mise
-   mise run test
-   mise run lint:check:rust
-   
-   # Without mise: Use bin scripts
-   ./bin/test
-   ./bin/lint/check/rust
-   ```
+```bash
+# Recommended: Use mise
+mise run test
+mise run lint:check:rust
+
+# Without mise: Use bin scripts
+./bin/test
+./bin/lint/check/rust
+```
 
 #### Commit your changes
 
-   ```bash
-   git add .
-   git commit -m "feat: add support for XYZ"
-   ```
+```bash
+git add .
+git commit -m "feat: add support for XYZ"
+```
 
 #### Push and create a PR
 
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+```bash
+git push origin feature/your-feature-name
+```
 
 ## Testing Guidelines
 
@@ -232,31 +232,31 @@ When adding support for new directories:
 
 1. **Research platform conventions**
 
-- Linux: Follow XDG Base Directory Specification
-- macOS: Use native `~/Library/*` locations
-- Windows: Use appropriate `%APPDATA%` or `%LOCALAPPDATA%` paths
+    - Linux: Follow XDG Base Directory Specification
+    - macOS: Use native `~/Library/*` locations
+    - Windows: Use appropriate `%APPDATA%` or `%LOCALAPPDATA%` paths
 
-1. **Implement XDG-first logic**
+2. **Implement XDG-first logic**
 
-   ```rust
-   pub fn new_directory() -> Result<PathBuf> {
-       if let Ok(xdg_var) = env::var("XDG_NEW_HOME") {
-           return Ok(PathBuf::from(xdg_var));
-       }
-       
-       // Platform-specific fallbacks
-       #[cfg(target_os = "linux")]
-       { /* Linux default */ }
-       
-       #[cfg(target_os = "macos")]
-       { /* macOS default */ }
-       
-       #[cfg(target_os = "windows")]
-       { /* Windows default */ }
-   }
-   ```
+    ```rust
+    pub fn new_directory() -> Result<PathBuf> {
+      if let Ok(xdg_var) = env::var("XDG_NEW_HOME") {
+        return Ok(PathBuf::from(xdg_var));
+      }
 
-2. **Update documentation**
+      // Platform-specific fallbacks
+      #[cfg(target_os = "linux")]
+      { /* Linux default */ }
+
+      #[cfg(target_os = "macos")]
+      { /* macOS default */ }
+
+      #[cfg(target_os = "windows")]
+      { /* Windows default */ }
+    }
+    ```
+
+3. **Update documentation**
 
 - Add to the table in README.md
 - Include examples in doc comments

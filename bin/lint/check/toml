@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="lint yaml files"
+#MISE alias=["l:c:toml", "lint:c:toml", "lint:check:toml"]
+
+if command -v taplo >/dev/null 2>&1; then
+  taplo lint
+fi

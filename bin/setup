@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
 #MISE description="install dependencies and setup the dev environment"
 
+if command -v mise >/dev/null 2>&1; then
+  mise install
+fi
+
+rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
 rustup component add --toolchain nightly-x86_64-unknown-linux-gnu clippy
-cargo install cargo-audit cargo-llvm-cov cargo-nextest cargo-outdated cargo-sort
+cargo install cargo-audit cargo-llvm-cov cargo-nextest cargo-outdated cargo-sort cargo-workspaces

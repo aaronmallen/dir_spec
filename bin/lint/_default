@@ -3,4 +3,11 @@
 #MISE alias=["l"]
 
 bin/lint/check/markdown &&
+bin/lint/check/yaml &&
+bin/lint/check/toml &&
+bin/lint/check/shell &&
 bin/lint/check/rust
+
+if command -v editorconfig-checker >/dev/null 2>&1; then
+  editorconfig-checker
+fi

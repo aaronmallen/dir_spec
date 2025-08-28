@@ -7,5 +7,11 @@ includes = ["bin"]
 "cargo:cargo-nextest" = "latest"
 "cargo:cargo-outdated" = "latest"
 "cargo:cargo-sort" = "latest"
+"cargo:taplo-cli" = "latest"
+"cargo:cargo-workspace" = "latest"
+"npm:editorconfig-checker" = "latest"
 "npm:markdownlint-cli" = "latest"
-rust = { version = "nightly", components = "clippy,llvm-tools-preview,rustfmt,rust-src" }
+pipx = "latest"
+rust = { version = "nightly", components = "clippy,llvm-tools-preview,rustfmt,rust-src", targets = "x86_64-unknown-linux-gnu,x86_64-pc-windows-gnu,x86_64-apple-darwin,aarch64-apple-darwin" }
+shellcheck = "latest"
+yamllint = "latest"

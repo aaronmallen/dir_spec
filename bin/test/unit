@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+#MISE description="run unit tests"
+
+cargo nextest run

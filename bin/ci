@@ -18,5 +18,5 @@ echo_step() {
 }
 
 echo_step "✨ Lint" && bin/lint/_default
-echo_step "🧪 Test" && bin/test
+echo_step "🧪 Test" && bin/test/coverage
 echo_step "👷‍♂️ Build" && bin/build
