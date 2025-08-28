@@ -1,4 +1,19 @@
+#[cfg(target_os = "linux")]
+mod linux;
+#[cfg(target_os = "macos")]
+mod macos;
+#[cfg(target_os = "windows")]
+mod windows;
+pub(crate) mod xdg;
+
 use std::{env, path::PathBuf};
+
+#[cfg(target_os = "linux")]
+use linux as os;
+#[cfg(target_os = "macos")]
+use macos as os;
+#[cfg(target_os = "windows")]
+use windows as os;
 
 /// Cross-platform directory resolver with XDG compliance.
 ///
@@ -49,19 +64,7 @@ impl Dir {
   /// }
   /// ```
   pub fn bin_home() -> Option<PathBuf> {
-    if let Some(path) = Self::resolve_xdg_path("XDG_BIN_HOME") {
-      return Some(path);
-    }
-
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    {
-      Self::home().map(|home| home.join(".local/bin"))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      env::var("LOCALAPPDATA").ok().map(|path| PathBuf::from(path).join("Programs"))
-    }
+    os::bin_home()
   }
 
   /// Returns the user's cache directory.
@@ -80,8 +83,7 @@ impl Dir {
   /// }
   /// ```
   pub fn cache_home() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_CACHE_HOME")
-      .or_else(|| Self::get_platform_default("Library/Caches", "LOCALAPPDATA", ".cache"))
+    os::cache_home()
   }
 
   /// Returns the user's configuration directory.
@@ -100,8 +102,7 @@ impl Dir {
   /// }
   /// ```
   pub fn config_home() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_CONFIG_HOME")
-      .or_else(|| Self::get_platform_default("Library/Application Support", "APPDATA", ".config"))
+    os::config_home()
   }
 
   /// Returns the user's local configuration directory (non-roaming).
@@ -123,15 +124,7 @@ impl Dir {
   /// }
   /// ```
   pub fn config_local() -> Option<PathBuf> {
-    #[cfg(target_os = "windows")]
-    {
-      env::var("LOCALAPPDATA").ok().map(PathBuf::from)
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-      Self::config_home()
-    }
+    os::config_local()
   }
 
   /// Returns the user's data directory.
@@ -150,8 +143,7 @@ impl Dir {
   /// }
   /// ```
   pub fn data_home() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_DATA_HOME")
-      .or_else(|| Self::get_platform_default("Library/Application Support", "APPDATA", ".local/share"))
+    os::data_home()
   }
 
   /// Returns the user's local data directory (non-roaming).
@@ -173,15 +165,7 @@ impl Dir {
   /// }
   /// ```
   pub fn data_local() -> Option<PathBuf> {
-    #[cfg(target_os = "windows")]
-    {
-      env::var("LOCALAPPDATA").ok().map(PathBuf::from)
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-      Self::data_home()
-    }
+    os::data_local()
   }
 
   /// Returns the user's desktop directory.
@@ -199,8 +183,7 @@ impl Dir {
   /// }
   /// ```
   pub fn desktop() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_DESKTOP_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Desktop", "USERPROFILE", "Desktop", "Desktop"))
+    os::desktop()
   }
 
   /// Returns the user's documents directory.
@@ -218,8 +201,7 @@ impl Dir {
   /// }
   /// ```
   pub fn documents() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_DOCUMENTS_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Documents", "USERPROFILE", "Documents", "Documents"))
+    os::documents()
   }
 
   /// Returns the user's downloads directory.
@@ -237,8 +219,7 @@ impl Dir {
   /// }
   /// ```
   pub fn downloads() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_DOWNLOAD_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Downloads", "USERPROFILE", "Downloads", "Downloads"))
+    os::downloads()
   }
 
   /// Returns the user's fonts directory.
@@ -262,20 +243,7 @@ impl Dir {
   /// }
   /// ```
   pub fn fonts() -> Option<PathBuf> {
-    #[cfg(target_os = "macos")]
-    {
-      Self::home().map(|home| home.join("Library/Fonts"))
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-      Self::home().map(|home| home.join(".local/share/fonts"))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      None
-    }
+    os::fonts()
   }
 
   /// Returns the user's home directory.
@@ -291,7 +259,7 @@ impl Dir {
   /// }
   /// ```
   pub fn home() -> Option<PathBuf> {
-    std::env::home_dir()
+    env::home_dir()
   }
 
   /// Returns the user's music directory.
@@ -309,8 +277,7 @@ impl Dir {
   /// }
   /// ```
   pub fn music() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_MUSIC_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Music", "USERPROFILE", "Music", "Music"))
+    os::music()
   }
 
   /// Returns the user's pictures directory.
@@ -328,8 +295,7 @@ impl Dir {
   /// }
   /// ```
   pub fn pictures() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_PICTURES_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Pictures", "USERPROFILE", "Pictures", "Pictures"))
+    os::pictures()
   }
 
   /// Returns the user's preferences directory.
@@ -351,15 +317,7 @@ impl Dir {
   /// }
   /// ```
   pub fn preferences() -> Option<PathBuf> {
-    #[cfg(target_os = "macos")]
-    {
-      Self::home().map(|home| home.join("Library/Preferences"))
-    }
-
-    #[cfg(not(target_os = "macos"))]
-    {
-      Self::config_home()
-    }
+    os::preferences()
   }
 
   /// Returns the user's public share directory.
@@ -377,24 +335,7 @@ impl Dir {
   /// }
   /// ```
   pub fn publicshare() -> Option<PathBuf> {
-    if let Some(path) = Self::resolve_xdg_path("XDG_PUBLICSHARE_DIR") {
-      return Some(path);
-    }
-
-    #[cfg(target_os = "macos")]
-    {
-      Self::home().map(|home| home.join("Public"))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      Some(PathBuf::from("C:\\Users\\Public"))
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-      Self::home().map(|home| home.join("Public"))
-    }
+    os::publicshare()
   }
 
   /// Returns the user's runtime directory.
@@ -413,19 +354,7 @@ impl Dir {
   /// }
   /// ```
   pub fn runtime() -> Option<PathBuf> {
-    if let Some(path) = Self::resolve_xdg_path("XDG_RUNTIME_DIR") {
-      return Some(path);
-    }
-
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    {
-      env::var("TMPDIR").ok().map(PathBuf::from).or_else(|| Some(PathBuf::from("/tmp")))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      env::var("TEMP").ok().map(PathBuf::from)
-    }
+    os::runtime()
   }
 
   /// Returns the user's state directory.
@@ -444,8 +373,7 @@ impl Dir {
   /// }
   /// ```
   pub fn state_home() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_STATE_HOME")
-      .or_else(|| Self::get_platform_default("Library/Application Support", "LOCALAPPDATA", ".local/state"))
+    os::state_home()
   }
 
   /// Returns the user's templates directory.
@@ -463,8 +391,7 @@ impl Dir {
   /// }
   /// ```
   pub fn templates() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_TEMPLATES_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Templates", "USERPROFILE", "Templates", "Templates"))
+    os::templates()
   }
 
   /// Returns the user's videos directory.
@@ -483,70 +410,7 @@ impl Dir {
   /// }
   /// ```
   pub fn videos() -> Option<PathBuf> {
-    Self::resolve_xdg_path("XDG_VIDEOS_DIR")
-      .or_else(|| Self::get_platform_default_with_windows_subdir("Movies", "USERPROFILE", "Videos", "Videos"))
-  }
-
-  /// Resolves platform-specific directory paths using a simple pattern.
-  ///
-  /// This helper handles the common case where:
-  /// - macOS and Linux use home-relative paths
-  /// - Windows uses an environment variable directly
-  fn get_platform_default(
-    macos_path: &str,
-    #[allow(unused_variables)] windows_env: &str,
-    #[allow(unused_variables)] linux_path: &str,
-  ) -> Option<PathBuf> {
-    #[cfg(target_os = "macos")]
-    {
-      Self::home().map(|home| home.join(macos_path))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      env::var(windows_env).ok().map(PathBuf::from)
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-      Self::home().map(|home| home.join(linux_path))
-    }
-  }
-
-  /// Resolves platform-specific directory paths where Windows needs a subdirectory.
-  ///
-  /// This helper handles cases where:
-  /// - macOS and Linux use home-relative paths
-  /// - Windows uses an environment variable plus a subdirectory
-  fn get_platform_default_with_windows_subdir(
-    macos_path: &str,
-    #[allow(unused_variables)] windows_env: &str,
-    #[allow(unused_variables)] windows_subdir: &str,
-    #[allow(unused_variables)] linux_path: &str,
-  ) -> Option<PathBuf> {
-    #[cfg(target_os = "macos")]
-    {
-      Self::home().map(|home| home.join(macos_path))
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-      env::var(windows_env).ok().map(|path| PathBuf::from(path).join(windows_subdir))
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-      Self::home().map(|home| home.join(linux_path))
-    }
-  }
-
-  /// Resolves an XDG environment variable to an absolute path.
-  ///
-  /// Returns `Some(PathBuf)` if the environment variable is set and contains an absolute path,
-  /// `None` otherwise. This follows the XDG Base Directory Specification requirement that
-  /// all paths must be absolute.
-  fn resolve_xdg_path(var: &str) -> Option<PathBuf> {
-    env::var(var).ok().map(PathBuf::from).filter(|path| path.is_absolute())
+    os::videos()
   }
 }
 
