@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 ## [Unreleased]
 
+### Changed
+
+* **BREAKING**: Removed `Dir` struct and moved all methods to module-level functions
+* **BREAKING**: All directory resolution functions are now called directly (e.g., `config_home()` instead of
+  `Dir::config_home()`)
+* Updated crate-level documentation to reflect new function-based API
+* Updated all examples in documentation to use new function calls
+
+### Removed
+
+* **BREAKING**: Removed `Dir` struct entirely
+
 ## [0.4.0] - 2025-08-28
 
 ### Changed

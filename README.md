@@ -28,27 +28,25 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-dir_spec = "0.4.0"
+dir_spec = "0.5.0"
 ```
 
 Basic usage:
 
 ```rust
-use dir_spec::Dir;
-
 fn main() {
   // Get config directory (respects XDG_CONFIG_HOME if set)
-  if let Some(config_dir) = Dir::config_home() {
+  if let Some(config_dir) = dir_spec::config_home() {
     println!("Config: {}", config_dir.display());
   }
 
   // Get cache directory (respects XDG_CACHE_HOME if set)
-  if let Some(cache_dir) = Dir::cache_home() {
+  if let Some(cache_dir) = dir_spec::cache_home() {
     println!("Cache: {}", cache_dir.display());
   }
 
   // Get user's home directory
-  if let Some(home_dir) = Dir::home() {
+  if let Some(home_dir) = dir_spec::home() {
     println!("Home: {}", home_dir.display());
   }
 }
@@ -113,7 +111,7 @@ This crate always checks XDG environment variables first, regardless of platform
 // This will use XDG_CONFIG_HOME if set, even on macOS/Windows
 export XDG_CONFIG_HOME="/custom/config/path"
 
-let config = Dir::config_home(); // Returns Some("/custom/config/path")
+let config = dir_spec::config_home(); // Returns Some("/custom/config/path")
 ```
 
 If XDG variables aren't set, the crate falls back to platform-appropriate defaults.
@@ -149,18 +147,18 @@ All methods return `Option<PathBuf>`. Methods return `None` when:
 - Directory doesn't exist on the platform (e.g., `fonts()` on Windows)
 
 ```rust
-match Dir::config_home() {
+match dir_spec::config_home() {
     Some(path) => println!("Config dir: {}", path.display()),
     None => eprintln!("Failed to get config dir"),
 }
 
 // Or using if-let
-if let Some(config_path) = Dir::config_home() {
+if let Some(config_path) = dir_spec::config_home() {
     println!("Config dir: {}", config_path.display());
 }
 
 // For fallback handling
-let config_dir = Dir::config_home().unwrap_or_else(|| {
+let config_dir = dir_spec::config_home().unwrap_or_else(|| {
     // Fallback to current directory or panic, depending on your needs
     std::env::current_dir().expect("Cannot determine current directory")
 });
