@@ -36,7 +36,7 @@ mise run setup
 
 The library is organized with platform-specific modules:
 
-- `src/lib.rs` - Main library entry point and public API (defines the `Dir` struct with static methods)
+- `src/lib.rs` - Main library entry point and public API
 - `src/xdg.rs` - XDG Base Directory Specification implementation
 - `src/linux.rs` - Linux-specific directory resolution
 - `src/macos.rs` - macOS-specific directory resolution  
