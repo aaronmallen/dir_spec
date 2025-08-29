@@ -1,3 +1,37 @@
+//! # `dir_spec`
+//!
+//! Cross-platform directory resolver with XDG compliance.
+//!
+//! This crate provides functions to resolve standard directories across Linux, macOS, and Windows
+//! while respecting XDG Base Directory Specification environment variables when set.
+//!
+//! ## XDG Compliance
+//!
+//! All functions check for corresponding XDG environment variables first (e.g., `XDG_CONFIG_HOME`),
+//! and only fall back to platform-specific defaults if the XDG variable is not set or contains
+//! a relative path (which the XDG spec requires to be ignored).
+//!
+//! ## Examples
+//!
+//! ```rust
+//! use dir_spec::{config_home, cache_home, videos};
+//!
+//! // Get config directory (respects XDG_CONFIG_HOME if set)
+//! if let Some(config) = config_home() {
+//!     println!("Config directory: {}", config.display());
+//! }
+//!
+//! // Get cache directory (respects XDG_CACHE_HOME if set)
+//! if let Some(cache) = cache_home() {
+//!     println!("Cache directory: {}", cache.display());
+//! }
+//!
+//! // Get videos directory
+//! if let Some(videos) = videos() {
+//!     println!("Videos directory: {}", videos.display());
+//! }
+//! ```
+
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "macos")]
@@ -15,403 +49,368 @@ use macos as os;
 #[cfg(target_os = "windows")]
 use windows as os;
 
-/// Cross-platform directory resolver with XDG compliance.
+/// Returns the user's binary directory.
 ///
-/// This struct provides methods to resolve standard directories across Linux, macOS, and Windows
-/// while respecting XDG Base Directory Specification environment variables when set.
-///
-/// # XDG Compliance
-///
-/// All methods check for corresponding XDG environment variables first (e.g., `XDG_CONFIG_HOME`),
-/// and only fall back to platform-specific defaults if the XDG variable is not set or contains
-/// a relative path (which the XDG spec requires to be ignored).
+/// Checks `XDG_BIN_HOME` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/.local/bin`
+/// - **Windows**: `%LOCALAPPDATA%\Programs`
 ///
 /// # Examples
 ///
 /// ```rust
-/// use dir_spec::Dir;
-///
-/// // Get config directory (respects XDG_CONFIG_HOME if set)
-/// if let Some(config) = Dir::config_home() {
-///     println!("Config directory: {}", config.display());
+/// use dir_spec::bin_home;
+/// if let Some(bin_dir) = bin_home() {
+///     println!("Bin directory: {}", bin_dir.display());
 /// }
+/// ```
+pub fn bin_home() -> Option<PathBuf> {
+  os::bin_home()
+}
+
+/// Returns the user's cache directory.
 ///
-/// // Get cache directory (respects XDG_CACHE_HOME if set)
-/// if let Some(cache) = Dir::cache_home() {
-///     println!("Cache directory: {}", cache.display());
+/// Checks `XDG_CACHE_HOME` first, then falls back to platform defaults:
+/// - **Linux**: `~/.cache`
+/// - **macOS**: `~/Library/Caches`
+/// - **Windows**: `%LOCALAPPDATA%`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::cache_home;
+/// if let Some(cache_dir) = cache_home() {
+///     println!("Cache directory: {}", cache_dir.display());
 /// }
+/// ```
+pub fn cache_home() -> Option<PathBuf> {
+  os::cache_home()
+}
+
+/// Returns the user's configuration directory.
 ///
-/// // Get videos directory (new cleaner API)
-/// if let Some(videos) = Dir::videos() {
+/// Checks `XDG_CONFIG_HOME` first, then falls back to platform defaults:
+/// - **Linux**: `~/.config`
+/// - **macOS**: `~/Library/Application Support`
+/// - **Windows**: `%APPDATA%`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::config_home;
+/// if let Some(config_dir) = config_home() {
+///     println!("Config directory: {}", config_dir.display());
+/// }
+/// ```
+pub fn config_home() -> Option<PathBuf> {
+  os::config_home()
+}
+
+/// Returns the user's local configuration directory (non-roaming).
+///
+/// This is primarily useful on Windows where it returns the local (non-roaming) config directory.
+/// On other platforms, it behaves identically to `config_home()`.
+///
+/// Platform defaults:
+/// - **Linux**: `~/.config` (same as `config_home()`)
+/// - **macOS**: `~/Library/Application Support` (same as `config_home()`)
+/// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::config_local;
+/// if let Some(config_local) = config_local() {
+///     println!("Local config directory: {}", config_local.display());
+/// }
+/// ```
+pub fn config_local() -> Option<PathBuf> {
+  os::config_local()
+}
+
+/// Returns the user's data directory.
+///
+/// Checks `XDG_DATA_HOME` first, then falls back to platform defaults:
+/// - **Linux**: `~/.local/share`
+/// - **macOS**: `~/Library/Application Support`
+/// - **Windows**: `%APPDATA%`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::data_home;
+/// if let Some(data_dir) = data_home() {
+///     println!("Data directory: {}", data_dir.display());
+/// }
+/// ```
+pub fn data_home() -> Option<PathBuf> {
+  os::data_home()
+}
+
+/// Returns the user's local data directory (non-roaming).
+///
+/// This is primarily useful on Windows where it returns the local (non-roaming) data directory.
+/// On other platforms, it behaves identically to `data_home()`.
+///
+/// Platform defaults:
+/// - **Linux**: `~/.local/share` (same as `data_home()`)
+/// - **macOS**: `~/Library/Application Support` (same as `data_home()`)
+/// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::data_local;
+/// if let Some(data_local) = data_local() {
+///     println!("Local data directory: {}", data_local.display());
+/// }
+/// ```
+pub fn data_local() -> Option<PathBuf> {
+  os::data_local()
+}
+
+/// Returns the user's desktop directory.
+///
+/// Checks `XDG_DESKTOP_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Desktop`
+/// - **Windows**: `%USERPROFILE%\Desktop`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::desktop;
+/// if let Some(desktop) = desktop() {
+///     println!("Desktop directory: {}", desktop.display());
+/// }
+/// ```
+pub fn desktop() -> Option<PathBuf> {
+  os::desktop()
+}
+
+/// Returns the user's documents directory.
+///
+/// Checks `XDG_DOCUMENTS_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Documents`
+/// - **Windows**: `%USERPROFILE%\Documents`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::documents;
+/// if let Some(documents) = documents() {
+///     println!("Documents directory: {}", documents.display());
+/// }
+/// ```
+pub fn documents() -> Option<PathBuf> {
+  os::documents()
+}
+
+/// Returns the user's downloads directory.
+///
+/// Checks `XDG_DOWNLOAD_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Downloads`
+/// - **Windows**: `%USERPROFILE%\Downloads`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::downloads;
+/// if let Some(downloads) = downloads() {
+///     println!("Downloads directory: {}", downloads.display());
+/// }
+/// ```
+pub fn downloads() -> Option<PathBuf> {
+  os::downloads()
+}
+
+/// Returns the user's fonts directory.
+///
+/// This directory is used for user-installed fonts.
+/// Note: Returns `None` on Windows as there is no standard user fonts directory.
+///
+/// Platform defaults:
+/// - **Linux**: `~/.local/share/fonts`
+/// - **macOS**: `~/Library/Fonts`
+/// - **Windows**: `None` (no standard user fonts directory)
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::fonts;
+/// if let Some(fonts) = fonts() {
+///     println!("Fonts directory: {}", fonts.display());
+/// } else {
+///     println!("No user fonts directory on this platform");
+/// }
+/// ```
+pub fn fonts() -> Option<PathBuf> {
+  os::fonts()
+}
+
+/// Returns the user's home directory.
+///
+/// Uses the standard library's `std::env::home_dir()` function.
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::home;
+/// if let Some(home_dir) = home() {
+///     println!("Home directory: {}", home_dir.display());
+/// }
+/// ```
+pub fn home() -> Option<PathBuf> {
+  env::home_dir()
+}
+
+/// Returns the user's music directory.
+///
+/// Checks `XDG_MUSIC_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Music`
+/// - **Windows**: `%USERPROFILE%\Music`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::music;
+/// if let Some(music) = music() {
+///     println!("Music directory: {}", music.display());
+/// }
+/// ```
+pub fn music() -> Option<PathBuf> {
+  os::music()
+}
+
+/// Returns the user's pictures directory.
+///
+/// Checks `XDG_PICTURES_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Pictures`
+/// - **Windows**: `%USERPROFILE%\Pictures`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::pictures;
+/// if let Some(pictures) = pictures() {
+///     println!("Pictures directory: {}", pictures.display());
+/// }
+/// ```
+pub fn pictures() -> Option<PathBuf> {
+  os::pictures()
+}
+
+/// Returns the user's preferences directory.
+///
+/// This is primarily used on macOS for storing .plist files using Apple's proprietary APIs.
+/// On other platforms, it behaves identically to `config_home()`.
+///
+/// Platform defaults:
+/// - **Linux**: `~/.config` (same as `config_home()`)
+/// - **macOS**: `~/Library/Preferences` (for .plist files)
+/// - **Windows**: `%APPDATA%` (same as `config_home()`)
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::preferences;
+/// if let Some(preferences) = preferences() {
+///     println!("Preferences directory: {}", preferences.display());
+/// }
+/// ```
+pub fn preferences() -> Option<PathBuf> {
+  os::preferences()
+}
+
+/// Returns the user's public share directory.
+///
+/// Checks `XDG_PUBLICSHARE_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Public`
+/// - **Windows**: `C:\Users\Public` (system-wide public folder)
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::publicshare;
+/// if let Some(public) = publicshare() {
+///     println!("Public directory: {}", public.display());
+/// }
+/// ```
+pub fn publicshare() -> Option<PathBuf> {
+  os::publicshare()
+}
+
+/// Returns the user's runtime directory.
+///
+/// Checks `XDG_RUNTIME_DIR` first, then falls back to platform defaults:
+/// - **Linux**: Attempts to use `$TMPDIR`, then falls back to `/tmp`
+/// - **macOS**: `$TMPDIR` or `/tmp`
+/// - **Windows**: `%TEMP%`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::runtime;
+/// if let Some(runtime) = runtime() {
+///     println!("Runtime directory: {}", runtime.display());
+/// }
+/// ```
+pub fn runtime() -> Option<PathBuf> {
+  os::runtime()
+}
+
+/// Returns the user's state directory.
+///
+/// Checks `XDG_STATE_HOME` first, then falls back to platform defaults:
+/// - **Linux**: `~/.local/state`
+/// - **macOS**: `~/Library/Application Support`
+/// - **Windows**: `%LOCALAPPDATA%`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::state_home;
+/// if let Some(state_dir) = state_home() {
+///     println!("State directory: {}", state_dir.display());
+/// }
+/// ```
+pub fn state_home() -> Option<PathBuf> {
+  os::state_home()
+}
+
+/// Returns the user's templates directory.
+///
+/// Checks `XDG_TEMPLATES_DIR` first, then falls back to platform defaults:
+/// - **Linux/macOS**: `~/Templates`
+/// - **Windows**: `%USERPROFILE%\Templates`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::templates;
+/// if let Some(templates) = templates() {
+///     println!("Templates directory: {}", templates.display());
+/// }
+/// ```
+pub fn templates() -> Option<PathBuf> {
+  os::templates()
+}
+
+/// Returns the user's videos directory.
+///
+/// Checks `XDG_VIDEOS_DIR` first, then falls back to platform defaults:
+/// - **Linux**: `~/Videos`
+/// - **macOS**: `~/Movies` (following macOS convention)
+/// - **Windows**: `%USERPROFILE%\Videos`
+///
+/// # Examples
+///
+/// ```rust
+/// use dir_spec::videos;
+/// if let Some(videos) = videos() {
 ///     println!("Videos directory: {}", videos.display());
 /// }
 /// ```
-pub struct Dir;
-
-impl Dir {
-  /// Returns the user's binary directory.
-  ///
-  /// Checks `XDG_BIN_HOME` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/.local/bin`
-  /// - **Windows**: `%LOCALAPPDATA%\Programs`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(bin_dir) = Dir::bin_home() {
-  ///     println!("Bin directory: {}", bin_dir.display());
-  /// }
-  /// ```
-  pub fn bin_home() -> Option<PathBuf> {
-    os::bin_home()
-  }
-
-  /// Returns the user's cache directory.
-  ///
-  /// Checks `XDG_CACHE_HOME` first, then falls back to platform defaults:
-  /// - **Linux**: `~/.cache`
-  /// - **macOS**: `~/Library/Caches`
-  /// - **Windows**: `%LOCALAPPDATA%`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(cache_dir) = Dir::cache_home() {
-  ///     println!("Cache directory: {}", cache_dir.display());
-  /// }
-  /// ```
-  pub fn cache_home() -> Option<PathBuf> {
-    os::cache_home()
-  }
-
-  /// Returns the user's configuration directory.
-  ///
-  /// Checks `XDG_CONFIG_HOME` first, then falls back to platform defaults:
-  /// - **Linux**: `~/.config`
-  /// - **macOS**: `~/Library/Application Support`
-  /// - **Windows**: `%APPDATA%`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(config_dir) = Dir::config_home() {
-  ///     println!("Config directory: {}", config_dir.display());
-  /// }
-  /// ```
-  pub fn config_home() -> Option<PathBuf> {
-    os::config_home()
-  }
-
-  /// Returns the user's local configuration directory (non-roaming).
-  ///
-  /// This is primarily useful on Windows where it returns the local (non-roaming) config directory.
-  /// On other platforms, it behaves identically to `config_home()`.
-  ///
-  /// Platform defaults:
-  /// - **Linux**: `~/.config` (same as `config_home()`)
-  /// - **macOS**: `~/Library/Application Support` (same as `config_home()`)
-  /// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(config_local) = Dir::config_local() {
-  ///     println!("Local config directory: {}", config_local.display());
-  /// }
-  /// ```
-  pub fn config_local() -> Option<PathBuf> {
-    os::config_local()
-  }
-
-  /// Returns the user's data directory.
-  ///
-  /// Checks `XDG_DATA_HOME` first, then falls back to platform defaults:
-  /// - **Linux**: `~/.local/share`
-  /// - **macOS**: `~/Library/Application Support`
-  /// - **Windows**: `%APPDATA%`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(data_dir) = Dir::data_home() {
-  ///     println!("Data directory: {}", data_dir.display());
-  /// }
-  /// ```
-  pub fn data_home() -> Option<PathBuf> {
-    os::data_home()
-  }
-
-  /// Returns the user's local data directory (non-roaming).
-  ///
-  /// This is primarily useful on Windows where it returns the local (non-roaming) data directory.
-  /// On other platforms, it behaves identically to `data_home()`.
-  ///
-  /// Platform defaults:
-  /// - **Linux**: `~/.local/share` (same as `data_home()`)
-  /// - **macOS**: `~/Library/Application Support` (same as `data_home()`)
-  /// - **Windows**: `%LOCALAPPDATA%` (non-roaming)
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(data_local) = Dir::data_local() {
-  ///     println!("Local data directory: {}", data_local.display());
-  /// }
-  /// ```
-  pub fn data_local() -> Option<PathBuf> {
-    os::data_local()
-  }
-
-  /// Returns the user's desktop directory.
-  ///
-  /// Checks `XDG_DESKTOP_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Desktop`
-  /// - **Windows**: `%USERPROFILE%\Desktop`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(desktop) = Dir::desktop() {
-  ///     println!("Desktop directory: {}", desktop.display());
-  /// }
-  /// ```
-  pub fn desktop() -> Option<PathBuf> {
-    os::desktop()
-  }
-
-  /// Returns the user's documents directory.
-  ///
-  /// Checks `XDG_DOCUMENTS_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Documents`
-  /// - **Windows**: `%USERPROFILE%\Documents`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(documents) = Dir::documents() {
-  ///     println!("Documents directory: {}", documents.display());
-  /// }
-  /// ```
-  pub fn documents() -> Option<PathBuf> {
-    os::documents()
-  }
-
-  /// Returns the user's downloads directory.
-  ///
-  /// Checks `XDG_DOWNLOAD_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Downloads`
-  /// - **Windows**: `%USERPROFILE%\Downloads`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(downloads) = Dir::downloads() {
-  ///     println!("Downloads directory: {}", downloads.display());
-  /// }
-  /// ```
-  pub fn downloads() -> Option<PathBuf> {
-    os::downloads()
-  }
-
-  /// Returns the user's fonts directory.
-  ///
-  /// This directory is used for user-installed fonts.
-  /// Note: Returns `None` on Windows as there is no standard user fonts directory.
-  ///
-  /// Platform defaults:
-  /// - **Linux**: `~/.local/share/fonts`
-  /// - **macOS**: `~/Library/Fonts`
-  /// - **Windows**: `None` (no standard user fonts directory)
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(fonts) = Dir::fonts() {
-  ///     println!("Fonts directory: {}", fonts.display());
-  /// } else {
-  ///     println!("No user fonts directory on this platform");
-  /// }
-  /// ```
-  pub fn fonts() -> Option<PathBuf> {
-    os::fonts()
-  }
-
-  /// Returns the user's home directory.
-  ///
-  /// Uses the standard library's `std::env::home_dir()` function.
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(home_dir) = Dir::home() {
-  ///     println!("Home directory: {}", home_dir.display());
-  /// }
-  /// ```
-  pub fn home() -> Option<PathBuf> {
-    env::home_dir()
-  }
-
-  /// Returns the user's music directory.
-  ///
-  /// Checks `XDG_MUSIC_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Music`
-  /// - **Windows**: `%USERPROFILE%\Music`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(music) = Dir::music() {
-  ///     println!("Music directory: {}", music.display());
-  /// }
-  /// ```
-  pub fn music() -> Option<PathBuf> {
-    os::music()
-  }
-
-  /// Returns the user's pictures directory.
-  ///
-  /// Checks `XDG_PICTURES_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Pictures`
-  /// - **Windows**: `%USERPROFILE%\Pictures`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(pictures) = Dir::pictures() {
-  ///     println!("Pictures directory: {}", pictures.display());
-  /// }
-  /// ```
-  pub fn pictures() -> Option<PathBuf> {
-    os::pictures()
-  }
-
-  /// Returns the user's preferences directory.
-  ///
-  /// This is primarily used on macOS for storing .plist files using Apple's proprietary APIs.
-  /// On other platforms, it behaves identically to `config_home()`.
-  ///
-  /// Platform defaults:
-  /// - **Linux**: `~/.config` (same as `config_home()`)
-  /// - **macOS**: `~/Library/Preferences` (for .plist files)
-  /// - **Windows**: `%APPDATA%` (same as `config_home()`)
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(preferences) = Dir::preferences() {
-  ///     println!("Preferences directory: {}", preferences.display());
-  /// }
-  /// ```
-  pub fn preferences() -> Option<PathBuf> {
-    os::preferences()
-  }
-
-  /// Returns the user's public share directory.
-  ///
-  /// Checks `XDG_PUBLICSHARE_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Public`
-  /// - **Windows**: `C:\Users\Public` (system-wide public folder)
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(public) = Dir::publicshare() {
-  ///     println!("Public directory: {}", public.display());
-  /// }
-  /// ```
-  pub fn publicshare() -> Option<PathBuf> {
-    os::publicshare()
-  }
-
-  /// Returns the user's runtime directory.
-  ///
-  /// Checks `XDG_RUNTIME_DIR` first, then falls back to platform defaults:
-  /// - **Linux**: Attempts to use `$TMPDIR`, then falls back to `/tmp`
-  /// - **macOS**: `$TMPDIR` or `/tmp`
-  /// - **Windows**: `%TEMP%`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(runtime) = Dir::runtime() {
-  ///     println!("Runtime directory: {}", runtime.display());
-  /// }
-  /// ```
-  pub fn runtime() -> Option<PathBuf> {
-    os::runtime()
-  }
-
-  /// Returns the user's state directory.
-  ///
-  /// Checks `XDG_STATE_HOME` first, then falls back to platform defaults:
-  /// - **Linux**: `~/.local/state`
-  /// - **macOS**: `~/Library/Application Support`
-  /// - **Windows**: `%LOCALAPPDATA%`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(state_dir) = Dir::state_home() {
-  ///     println!("State directory: {}", state_dir.display());
-  /// }
-  /// ```
-  pub fn state_home() -> Option<PathBuf> {
-    os::state_home()
-  }
-
-  /// Returns the user's templates directory.
-  ///
-  /// Checks `XDG_TEMPLATES_DIR` first, then falls back to platform defaults:
-  /// - **Linux/macOS**: `~/Templates`
-  /// - **Windows**: `%USERPROFILE%\Templates`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(templates) = Dir::templates() {
-  ///     println!("Templates directory: {}", templates.display());
-  /// }
-  /// ```
-  pub fn templates() -> Option<PathBuf> {
-    os::templates()
-  }
-
-  /// Returns the user's videos directory.
-  ///
-  /// Checks `XDG_VIDEOS_DIR` first, then falls back to platform defaults:
-  /// - **Linux**: `~/Videos`
-  /// - **macOS**: `~/Movies` (following macOS convention)
-  /// - **Windows**: `%USERPROFILE%\Videos`
-  ///
-  /// # Examples
-  ///
-  /// ```rust
-  /// use dir_spec::Dir;
-  /// if let Some(videos) = Dir::videos() {
-  ///     println!("Videos directory: {}", videos.display());
-  /// }
-  /// ```
-  pub fn videos() -> Option<PathBuf> {
-    os::videos()
-  }
+pub fn videos() -> Option<PathBuf> {
+  os::videos()
 }
 
 #[cfg(test)]
@@ -427,7 +426,7 @@ mod tests {
     fn respects_xdg_bin_home() {
       let test_path = if cfg!(windows) { "C:\\test\\bin" } else { "/test/bin" };
       with_var("XDG_BIN_HOME", Some(test_path), || {
-        let result = Dir::bin_home();
+        let result = bin_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -435,7 +434,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_bin_home() {
       with_var("XDG_BIN_HOME", Some("relative/bin"), || {
-        let result = Dir::bin_home();
+        let result = bin_home();
 
         if let Some(path) = result {
           assert!(path.is_absolute());
@@ -446,7 +445,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_BIN_HOME", || {
-        let result = Dir::bin_home();
+        let result = bin_home();
         if let Some(bin_path) = result {
           assert!(bin_path.is_absolute());
 
@@ -469,7 +468,7 @@ mod tests {
     fn respects_xdg_cache_home() {
       let test_path = if cfg!(windows) { "C:\\test\\cache" } else { "/test/cache" };
       with_var("XDG_CACHE_HOME", Some(test_path), || {
-        let result = Dir::cache_home();
+        let result = cache_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -477,7 +476,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_cache_home() {
       with_var("XDG_CACHE_HOME", Some("relative/cache"), || {
-        let result = Dir::cache_home();
+        let result = cache_home();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -487,7 +486,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_CACHE_HOME", || {
-        let result = Dir::cache_home();
+        let result = cache_home();
         if let Some(cache_path) = result {
           assert!(cache_path.is_absolute());
 
@@ -517,7 +516,7 @@ mod tests {
     fn respects_xdg_config_home() {
       let test_path = if cfg!(windows) { "C:\\test\\config" } else { "/test/config" };
       with_var("XDG_CONFIG_HOME", Some(test_path), || {
-        let result = Dir::config_home();
+        let result = config_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -525,7 +524,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_config_home() {
       with_var("XDG_CONFIG_HOME", Some("relative/config"), || {
-        let result = Dir::config_home();
+        let result = config_home();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -535,7 +534,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_CONFIG_HOME", || {
-        let result = Dir::config_home();
+        let result = config_home();
         if let Some(config_path) = result {
           assert!(config_path.is_absolute());
 
@@ -561,7 +560,7 @@ mod tests {
 
     #[test]
     fn uses_localappdata_on_windows() {
-      let result = Dir::config_local();
+      let result = config_local();
       if let Some(config_local_path) = result {
         assert!(config_local_path.is_absolute());
 
@@ -574,7 +573,7 @@ mod tests {
 
         #[cfg(not(target_os = "windows"))]
         {
-          assert_eq!(Some(config_local_path), Dir::config_home());
+          assert_eq!(Some(config_local_path), config_home());
         }
       }
     }
@@ -583,8 +582,8 @@ mod tests {
     fn matches_config_home_on_non_windows() {
       #[cfg(not(target_os = "windows"))]
       {
-        let config_local = Dir::config_local();
-        let config_home = Dir::config_home();
+        let config_local = config_local();
+        let config_home = config_home();
         assert_eq!(config_local, config_home);
       }
     }
@@ -599,7 +598,7 @@ mod tests {
     fn respects_xdg_data_home() {
       let test_path = if cfg!(windows) { "C:\\test\\data" } else { "/test/data" };
       with_var("XDG_DATA_HOME", Some(test_path), || {
-        let result = Dir::data_home();
+        let result = data_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -607,7 +606,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_data_home() {
       with_var("XDG_DATA_HOME", Some("relative/data"), || {
-        let result = Dir::data_home();
+        let result = data_home();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -617,7 +616,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_DATA_HOME", || {
-        let result = Dir::data_home();
+        let result = data_home();
         if let Some(data_path) = result {
           assert!(data_path.is_absolute());
 
@@ -643,7 +642,7 @@ mod tests {
 
     #[test]
     fn uses_localappdata_on_windows() {
-      let result = Dir::data_local();
+      let result = data_local();
       if let Some(data_local_path) = result {
         assert!(data_local_path.is_absolute());
 
@@ -656,7 +655,7 @@ mod tests {
 
         #[cfg(not(target_os = "windows"))]
         {
-          assert_eq!(Some(data_local_path), Dir::data_home());
+          assert_eq!(Some(data_local_path), data_home());
         }
       }
     }
@@ -665,8 +664,8 @@ mod tests {
     fn matches_data_home_on_non_windows() {
       #[cfg(not(target_os = "windows"))]
       {
-        let data_local = Dir::data_local();
-        let data_home = Dir::data_home();
+        let data_local = data_local();
+        let data_home = data_home();
         assert_eq!(data_local, data_home);
       }
     }
@@ -681,7 +680,7 @@ mod tests {
     fn respects_xdg_desktop_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\desktop" } else { "/test/desktop" };
       with_var("XDG_DESKTOP_DIR", Some(test_path), || {
-        let result = Dir::desktop();
+        let result = desktop();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -689,7 +688,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_desktop_dir() {
       with_var("XDG_DESKTOP_DIR", Some("relative/desktop"), || {
-        let result = Dir::desktop();
+        let result = desktop();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -699,7 +698,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_DESKTOP_DIR", || {
-        let result = Dir::desktop();
+        let result = desktop();
         if let Some(desktop_path) = result {
           assert!(desktop_path.is_absolute());
           assert!(desktop_path.to_string_lossy().ends_with("Desktop"));
@@ -717,7 +716,7 @@ mod tests {
     fn respects_xdg_documents_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\documents" } else { "/test/documents" };
       with_var("XDG_DOCUMENTS_DIR", Some(test_path), || {
-        let result = Dir::documents();
+        let result = documents();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -725,7 +724,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_documents_dir() {
       with_var("XDG_DOCUMENTS_DIR", Some("relative/documents"), || {
-        let result = Dir::documents();
+        let result = documents();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -735,7 +734,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_DOCUMENTS_DIR", || {
-        let result = Dir::documents();
+        let result = documents();
         if let Some(documents_path) = result {
           assert!(documents_path.is_absolute());
           assert!(documents_path.to_string_lossy().ends_with("Documents"));
@@ -753,7 +752,7 @@ mod tests {
     fn respects_xdg_download_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\downloads" } else { "/test/downloads" };
       with_var("XDG_DOWNLOAD_DIR", Some(test_path), || {
-        let result = Dir::downloads();
+        let result = downloads();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -761,7 +760,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_download_dir() {
       with_var("XDG_DOWNLOAD_DIR", Some("relative/downloads"), || {
-        let result = Dir::downloads();
+        let result = downloads();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -771,7 +770,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_DOWNLOAD_DIR", || {
-        let result = Dir::downloads();
+        let result = downloads();
         if let Some(downloads_path) = result {
           assert!(downloads_path.is_absolute());
           assert!(downloads_path.to_string_lossy().ends_with("Downloads"));
@@ -785,7 +784,7 @@ mod tests {
 
     #[test]
     fn returns_platform_specific_path() {
-      let result = Dir::fonts();
+      let result = fonts();
 
       #[cfg(target_os = "linux")]
       if let Some(fonts_path) = result {
@@ -807,7 +806,7 @@ mod tests {
     fn returns_none_on_windows() {
       #[cfg(target_os = "windows")]
       {
-        let result = Dir::fonts();
+        let result = fonts();
         assert_eq!(result, None);
       }
     }
@@ -816,7 +815,7 @@ mod tests {
     fn returns_some_on_unix() {
       #[cfg(any(target_os = "linux", target_os = "macos"))]
       {
-        let result = Dir::fonts();
+        let result = fonts();
         assert!(result.is_some());
         if let Some(path) = result {
           assert!(path.is_absolute());
@@ -830,7 +829,7 @@ mod tests {
 
     #[test]
     fn returns_absolute_path_when_available() {
-      let result = Dir::home();
+      let result = home();
       if let Some(home_path) = result {
         assert!(home_path.is_absolute());
       }
@@ -839,7 +838,7 @@ mod tests {
     #[test]
     fn delegates_to_std_env_home_dir() {
       let std_result = std::env::home_dir();
-      let our_result = Dir::home();
+      let our_result = home();
       assert_eq!(std_result, our_result);
     }
   }
@@ -853,7 +852,7 @@ mod tests {
     fn respects_xdg_music_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\music" } else { "/test/music" };
       with_var("XDG_MUSIC_DIR", Some(test_path), || {
-        let result = Dir::music();
+        let result = music();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -861,7 +860,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_music_dir() {
       with_var("XDG_MUSIC_DIR", Some("relative/music"), || {
-        let result = Dir::music();
+        let result = music();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -871,7 +870,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_MUSIC_DIR", || {
-        let result = Dir::music();
+        let result = music();
         if let Some(music_path) = result {
           assert!(music_path.is_absolute());
           assert!(music_path.to_string_lossy().ends_with("Music"));
@@ -889,7 +888,7 @@ mod tests {
     fn respects_xdg_pictures_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\pictures" } else { "/test/pictures" };
       with_var("XDG_PICTURES_DIR", Some(test_path), || {
-        let result = Dir::pictures();
+        let result = pictures();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -897,7 +896,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_pictures_dir() {
       with_var("XDG_PICTURES_DIR", Some("relative/pictures"), || {
-        let result = Dir::pictures();
+        let result = pictures();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -907,7 +906,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_PICTURES_DIR", || {
-        let result = Dir::pictures();
+        let result = pictures();
         if let Some(pictures_path) = result {
           assert!(pictures_path.is_absolute());
           assert!(pictures_path.to_string_lossy().ends_with("Pictures"));
@@ -921,7 +920,7 @@ mod tests {
 
     #[test]
     fn returns_platform_specific_path() {
-      let result = Dir::preferences();
+      let result = preferences();
       if let Some(preferences_path) = result {
         assert!(preferences_path.is_absolute());
 
@@ -929,7 +928,7 @@ mod tests {
         assert!(preferences_path.to_string_lossy().ends_with("Library/Preferences"));
 
         #[cfg(not(target_os = "macos"))]
-        assert_eq!(Some(preferences_path), Dir::config_home());
+        assert_eq!(Some(preferences_path), config_home());
       }
     }
 
@@ -937,8 +936,8 @@ mod tests {
     fn matches_config_home_on_non_macos() {
       #[cfg(not(target_os = "macos"))]
       {
-        let preferences = Dir::preferences();
-        let config_home = Dir::config_home();
+        let preferences = preferences();
+        let config_home = config_home();
         assert_eq!(preferences, config_home);
       }
     }
@@ -947,7 +946,7 @@ mod tests {
     fn uses_library_preferences_on_macos() {
       #[cfg(target_os = "macos")]
       {
-        let result = Dir::preferences();
+        let result = preferences();
         if let Some(path) = result {
           assert!(path.to_string_lossy().ends_with("Library/Preferences"));
         }
@@ -964,7 +963,7 @@ mod tests {
     fn respects_xdg_publicshare_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\public" } else { "/test/public" };
       with_var("XDG_PUBLICSHARE_DIR", Some(test_path), || {
-        let result = Dir::publicshare();
+        let result = publicshare();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -972,7 +971,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_publicshare_dir() {
       with_var("XDG_PUBLICSHARE_DIR", Some("relative/public"), || {
-        let result = Dir::publicshare();
+        let result = publicshare();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -982,7 +981,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_PUBLICSHARE_DIR", || {
-        let result = Dir::publicshare();
+        let result = publicshare();
         if let Some(public_path) = result {
           assert!(public_path.is_absolute());
 
@@ -1000,7 +999,7 @@ mod tests {
       #[cfg(target_os = "windows")]
       {
         with_var_unset("XDG_PUBLICSHARE_DIR", || {
-          let result = Dir::publicshare();
+          let result = publicshare();
           assert_eq!(result, Some(PathBuf::from("C:\\Users\\Public")));
         });
       }
@@ -1016,7 +1015,7 @@ mod tests {
     fn respects_xdg_runtime_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\runtime" } else { "/test/runtime" };
       with_var("XDG_RUNTIME_DIR", Some(test_path), || {
-        let result = Dir::runtime();
+        let result = runtime();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -1024,7 +1023,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_runtime_dir() {
       with_var("XDG_RUNTIME_DIR", Some("relative/runtime"), || {
-        let result = Dir::runtime();
+        let result = runtime();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -1034,7 +1033,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_RUNTIME_DIR", || {
-        let result = Dir::runtime();
+        let result = runtime();
         if let Some(runtime_path) = result {
           assert!(runtime_path.is_absolute());
 
@@ -1060,7 +1059,7 @@ mod tests {
       {
         with_var_unset("XDG_RUNTIME_DIR", || {
           with_var_unset("TMPDIR", || {
-            let result = Dir::runtime();
+            let result = runtime();
             assert_eq!(result, Some(PathBuf::from("/tmp")));
           });
         });
@@ -1077,7 +1076,7 @@ mod tests {
     fn respects_xdg_state_home() {
       let test_path = if cfg!(windows) { "C:\\test\\state" } else { "/test/state" };
       with_var("XDG_STATE_HOME", Some(test_path), || {
-        let result = Dir::state_home();
+        let result = state_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -1085,7 +1084,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_state_home() {
       with_var("XDG_STATE_HOME", Some("relative/state"), || {
-        let result = Dir::state_home();
+        let result = state_home();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -1095,7 +1094,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_STATE_HOME", || {
-        let result = Dir::state_home();
+        let result = state_home();
         if let Some(state_path) = result {
           assert!(state_path.is_absolute());
 
@@ -1125,7 +1124,7 @@ mod tests {
     fn respects_xdg_templates_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\templates" } else { "/test/templates" };
       with_var("XDG_TEMPLATES_DIR", Some(test_path), || {
-        let result = Dir::templates();
+        let result = templates();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -1133,7 +1132,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_templates_dir() {
       with_var("XDG_TEMPLATES_DIR", Some("relative/templates"), || {
-        let result = Dir::templates();
+        let result = templates();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -1143,7 +1142,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_TEMPLATES_DIR", || {
-        let result = Dir::templates();
+        let result = templates();
         if let Some(templates_path) = result {
           assert!(templates_path.is_absolute());
           assert!(templates_path.to_string_lossy().ends_with("Templates"));
@@ -1161,7 +1160,7 @@ mod tests {
     fn respects_xdg_videos_dir() {
       let test_path = if cfg!(windows) { "C:\\test\\videos" } else { "/test/videos" };
       with_var("XDG_VIDEOS_DIR", Some(test_path), || {
-        let result = Dir::videos();
+        let result = videos();
         assert_eq!(result, Some(PathBuf::from(test_path)));
       });
     }
@@ -1169,7 +1168,7 @@ mod tests {
     #[test]
     fn ignores_relative_xdg_videos_dir() {
       with_var("XDG_VIDEOS_DIR", Some("relative/videos"), || {
-        let result = Dir::videos();
+        let result = videos();
         if let Some(path) = result {
           assert!(path.is_absolute());
         }
@@ -1179,7 +1178,7 @@ mod tests {
     #[test]
     fn uses_platform_default_when_xdg_unset() {
       with_var_unset("XDG_VIDEOS_DIR", || {
-        let result = Dir::videos();
+        let result = videos();
         if let Some(videos_path) = result {
           assert!(videos_path.is_absolute());
 
