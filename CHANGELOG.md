@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Break Versioning].
 
-## [Unreleased]
+## [0.5.0] - 2025-08-29
 
 ### Changed
 
@@ -101,7 +101,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 <!-- versions -->
 
-[Unreleased]: https://github.com/aaronmallen/dir_spec/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/aaronmallen/dir_spec/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/aaronmallen/dir_spec/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/aaronmallen/dir_spec/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/aaronmallen/dir_spec/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/aaronmallen/dir_spec/compare/0.1.0...0.2.0
