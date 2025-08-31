@@ -1,6 +1,23 @@
 [task_config]
 includes = ["bin"]
 
+[tasks.build]
+run_windows = "cargo build --all --all-features"
+
+[tasks.setup]
+run_windows = """
+rustup component add --toolchain nightly-x86_64-pc-windows-msvc rustfmt
+rustup component add --toolchain nightly-x86_64-pc-windows-msvc clippy
+cargo install cargo-audit cargo-llvm-cov cargo-nextest cargo-outdated cargo-sort cargo-workspaces
+"""
+
+[tasks."test:coverage"]
+run_windows = """
+cargo llvm-cov nextest --branch --summary-only
+cargo llvm-cov report --branch --html --output-dir coverage
+cargo llvm-cov report --branch --lcov --output-path coverage/lcov.info
+"""
+
 [tools]
 "cargo:cargo-audit" = "latest"
 "cargo:cargo-llvm-cov" = "latest"
