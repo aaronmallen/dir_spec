@@ -59,8 +59,12 @@ pub fn publicshare() -> Option<PathBuf> {
 }
 
 pub fn runtime() -> Option<PathBuf> {
-  xdg::resolve_path(xdg::RUNTIME_DIR)
-    .or_else(|| env::var("TMPDIR").ok().map(PathBuf::from).or_else(|| Some(PathBuf::from("/tmp"))))
+  xdg::resolve_path(xdg::RUNTIME_DIR).or_else(|| {
+    env::var("TMPDIR")
+      .ok()
+      .map(PathBuf::from)
+      .or_else(|| Some(PathBuf::from("/tmp")))
+  })
 }
 
 pub fn state_home() -> Option<PathBuf> {

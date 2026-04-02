@@ -1,5 +1,0 @@
-#!/usr/bin/env sh
-#MISE description="clean build artifacts"
-
-rm -rf coverage
-cargo clean

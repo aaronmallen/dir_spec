@@ -1,0 +1,11 @@
+line-length:
+  code_blocks: false
+  line_length: 120
+  strict: true
+  tables: false
+no-duplicate-heading: false
+no-inline-html:
+  allowed_elements:
+    - span
+single-title:
+  front_matter_title: ""

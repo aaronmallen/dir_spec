@@ -466,7 +466,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_cache_home() {
-      let test_path = if cfg!(windows) { "C:\\test\\cache" } else { "/test/cache" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\cache"
+      } else {
+        "/test/cache"
+      };
       with_var("XDG_CACHE_HOME", Some(test_path), || {
         let result = cache_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -514,7 +518,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_config_home() {
-      let test_path = if cfg!(windows) { "C:\\test\\config" } else { "/test/config" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\config"
+      } else {
+        "/test/config"
+      };
       with_var("XDG_CONFIG_HOME", Some(test_path), || {
         let result = config_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -678,7 +686,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_desktop_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\desktop" } else { "/test/desktop" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\desktop"
+      } else {
+        "/test/desktop"
+      };
       with_var("XDG_DESKTOP_DIR", Some(test_path), || {
         let result = desktop();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -714,7 +726,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_documents_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\documents" } else { "/test/documents" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\documents"
+      } else {
+        "/test/documents"
+      };
       with_var("XDG_DOCUMENTS_DIR", Some(test_path), || {
         let result = documents();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -750,7 +766,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_download_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\downloads" } else { "/test/downloads" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\downloads"
+      } else {
+        "/test/downloads"
+      };
       with_var("XDG_DOWNLOAD_DIR", Some(test_path), || {
         let result = downloads();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -850,7 +870,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_music_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\music" } else { "/test/music" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\music"
+      } else {
+        "/test/music"
+      };
       with_var("XDG_MUSIC_DIR", Some(test_path), || {
         let result = music();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -886,7 +910,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_pictures_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\pictures" } else { "/test/pictures" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\pictures"
+      } else {
+        "/test/pictures"
+      };
       with_var("XDG_PICTURES_DIR", Some(test_path), || {
         let result = pictures();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -961,7 +989,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_publicshare_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\public" } else { "/test/public" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\public"
+      } else {
+        "/test/public"
+      };
       with_var("XDG_PUBLICSHARE_DIR", Some(test_path), || {
         let result = publicshare();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -1013,7 +1045,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_runtime_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\runtime" } else { "/test/runtime" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\runtime"
+      } else {
+        "/test/runtime"
+      };
       with_var("XDG_RUNTIME_DIR", Some(test_path), || {
         let result = runtime();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -1074,7 +1110,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_state_home() {
-      let test_path = if cfg!(windows) { "C:\\test\\state" } else { "/test/state" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\state"
+      } else {
+        "/test/state"
+      };
       with_var("XDG_STATE_HOME", Some(test_path), || {
         let result = state_home();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -1122,7 +1162,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_templates_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\templates" } else { "/test/templates" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\templates"
+      } else {
+        "/test/templates"
+      };
       with_var("XDG_TEMPLATES_DIR", Some(test_path), || {
         let result = templates();
         assert_eq!(result, Some(PathBuf::from(test_path)));
@@ -1158,7 +1202,11 @@ mod tests {
 
     #[test]
     fn respects_xdg_videos_dir() {
-      let test_path = if cfg!(windows) { "C:\\test\\videos" } else { "/test/videos" };
+      let test_path = if cfg!(windows) {
+        "C:\\test\\videos"
+      } else {
+        "/test/videos"
+      };
       with_var("XDG_VIDEOS_DIR", Some(test_path), || {
         let result = videos();
         assert_eq!(result, Some(PathBuf::from(test_path)));

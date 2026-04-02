@@ -1,9 +1,11 @@
 name: Shared Setup
+description: Install mise, Rust toolchain, and development dependencies
 runs:
   using: "composite"
   steps:
     - uses: jdx/mise-action@v3
     - uses: Swatinem/rust-cache@v2
-    - name: Setup
-      shell: sh
-      run: mise run setup
+    - shell: bash
+      run: |-
+        rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+        rustup component add --toolchain nightly-x86_64-unknown-linux-gnu clippy
