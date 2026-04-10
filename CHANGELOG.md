@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 ### Fixed
 
-* Fixed compilation on FreeBSD and other BSD-family operating systems by broadening platform support from `target_os = "linux"` to `target_family = "unix"` (excluding macOS)
+* Fixed compilation on FreeBSD and other BSD-family operating systems by broadening platform support
+  from `target_os = "linux"` to `target_family = "unix"` (excluding macOS)
 * Renamed internal `linux` module to `unix` to reflect its broader applicability
 
 ## [0.5.0] - 2025-08-29
