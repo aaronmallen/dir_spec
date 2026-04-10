@@ -32,20 +32,20 @@
 //! }
 //! ```
 
-#[cfg(target_os = "linux")]
-mod linux;
 #[cfg(target_os = "macos")]
 mod macos;
+#[cfg(all(target_family = "unix", not(target_os = "macos")))]
+mod unix;
 #[cfg(target_os = "windows")]
 mod windows;
 pub(crate) mod xdg;
 
 use std::{env, path::PathBuf};
 
-#[cfg(target_os = "linux")]
-use linux as os;
 #[cfg(target_os = "macos")]
 use macos as os;
+#[cfg(all(target_family = "unix", not(target_os = "macos")))]
+use unix as os;
 #[cfg(target_os = "windows")]
 use windows as os;
 

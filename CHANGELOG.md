@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Break Versioning].
 
+## [0.5.1] - 2026-04-10
+
+### Fixed
+
+* Fixed compilation on FreeBSD and other BSD-family operating systems by broadening platform support from `target_os = "linux"` to `target_family = "unix"` (excluding macOS)
+* Renamed internal `linux` module to `unix` to reflect its broader applicability
+
 ## [0.5.0] - 2025-08-29
 
 ### Changed
@@ -101,6 +108,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 <!-- versions -->
 
+[0.5.1]: https://github.com/aaronmallen/dir_spec/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/aaronmallen/dir_spec/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/aaronmallen/dir_spec/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/aaronmallen/dir_spec/compare/0.2.0...0.3.0
