@@ -7,7 +7,7 @@ const LOCALAPPDATA: &str = "LOCALAPPDATA";
 const USERPROFILE: &str = "USERPROFILE";
 
 pub fn bin_home() -> Option<PathBuf> {
-  resolve_path(LOCALAPPDATA).map(|p| p.join("Programs"))
+  xdg::resolve_path(xdg::BIN_HOME).or_else(|| resolve_path(LOCALAPPDATA).map(|p| p.join("Programs")))
 }
 
 pub fn cache_home() -> Option<PathBuf> {
