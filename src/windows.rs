@@ -59,11 +59,11 @@ pub fn preferences() -> Option<PathBuf> {
 }
 
 pub fn publicshare() -> Option<PathBuf> {
-  Some(PathBuf::from("C:\\Users\\Public"))
+    xdg::resolve_path(xdg::PUBLICSHARE_DIR).or_else(|| Some(PathBuf::from("C:\\Users\\Public")))
 }
 
 pub fn runtime() -> Option<PathBuf> {
-  env::var_os("TEMP").map(PathBuf::from)
+    xdg::resolve_path(xdg::RUNTIME_DIR).or_else(|| env::var_os("TEMP").map(PathBuf::from))
 }
 
 pub fn state_home() -> Option<PathBuf> {
