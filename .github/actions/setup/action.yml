@@ -7,6 +7,5 @@ runs:
     - uses: Swatinem/rust-cache@v2
     - shell: bash
       run: |-
-        NIGHTLY_TOOLCHAIN=$(rustup toolchain list | grep nightly | head -1 | awk '{print $1}')
-        rustup component add --toolchain "$NIGHTLY_TOOLCHAIN" rustfmt
-        rustup component add --toolchain "$NIGHTLY_TOOLCHAIN" clippy
+        rustup component add --toolchain nightly rustfmt
+        rustup component add --toolchain nightly clippy
