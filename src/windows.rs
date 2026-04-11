@@ -11,51 +11,51 @@ pub fn bin_home() -> Option<PathBuf> {
 }
 
 pub fn cache_home() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback(xdg::CACHE_HOME, LOCALAPPDATA)
+    resolve_xdg_path_with_fallback(xdg::CACHE_HOME, LOCALAPPDATA)
 }
 
 pub fn config_home() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback(xdg::CONFIG_HOME, APPDATA)
+    resolve_xdg_path_with_fallback(xdg::CONFIG_HOME, APPDATA)
 }
 
 pub fn config_local() -> Option<PathBuf> {
-  resolve_path(LOCALAPPDATA)
+    resolve_path(LOCALAPPDATA)
 }
 
 pub fn data_home() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback(xdg::DATA_HOME, APPDATA)
+    resolve_xdg_path_with_fallback(xdg::DATA_HOME, APPDATA)
 }
 
 pub fn data_local() -> Option<PathBuf> {
-  env::var_os(LOCALAPPDATA).map(PathBuf::from)
+    env::var_os(LOCALAPPDATA).map(PathBuf::from)
 }
 
 pub fn desktop() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::DESKTOP_DIR, USERPROFILE, "Desktop")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::DESKTOP_DIR, USERPROFILE, "Desktop")
 }
 
 pub fn documents() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::DOCUMENTS_DIR, USERPROFILE, "Documents")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::DOCUMENTS_DIR, USERPROFILE, "Documents")
 }
 
 pub fn downloads() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::DOWNLOAD_DIR, USERPROFILE, "Downloads")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::DOWNLOAD_DIR, USERPROFILE, "Downloads")
 }
 
 pub fn fonts() -> Option<PathBuf> {
-  None
+    None
 }
 
 pub fn music() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::MUSIC_DIR, USERPROFILE, "Music")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::MUSIC_DIR, USERPROFILE, "Music")
 }
 
 pub fn pictures() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::PICTURES_DIR, USERPROFILE, "Pictures")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::PICTURES_DIR, USERPROFILE, "Pictures")
 }
 
 pub fn preferences() -> Option<PathBuf> {
-  config_home()
+    config_home()
 }
 
 pub fn publicshare() -> Option<PathBuf> {
@@ -67,23 +67,23 @@ pub fn runtime() -> Option<PathBuf> {
 }
 
 pub fn state_home() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback(xdg::STATE_HOME, LOCALAPPDATA)
+    resolve_xdg_path_with_fallback(xdg::STATE_HOME, LOCALAPPDATA)
 }
 
 pub fn templates() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::TEMPLATES_DIR, USERPROFILE, "Templates")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::TEMPLATES_DIR, USERPROFILE, "Templates")
 }
 
 pub fn videos() -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback_and_sub_dir(xdg::VIDEOS_DIR, USERPROFILE, "Videos")
+    resolve_xdg_path_with_fallback_and_sub_dir(xdg::VIDEOS_DIR, USERPROFILE, "Videos")
 }
 
 fn resolve_path(key: &str) -> Option<PathBuf> {
-  env::var_os(key).map(PathBuf::from)
+    env::var_os(key).map(PathBuf::from)
 }
 
 fn resolve_xdg_path_with_fallback(xdg_key: &str, key: &str) -> Option<PathBuf> {
-  xdg::resolve_path(xdg_key).or_else(|| env::var_os(key).map(PathBuf::from))
+    xdg::resolve_path(xdg_key).or_else(|| env::var_os(key).map(PathBuf::from))
 }
 
 fn resolve_xdg_path_with_fallback_and_sub_dir(xdg_key: &str, key: &str, sub_dir: &str) -> Option<PathBuf> {
