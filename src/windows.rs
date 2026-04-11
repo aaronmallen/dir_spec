@@ -86,6 +86,10 @@ fn resolve_xdg_path_with_fallback(xdg_key: &str, key: &str) -> Option<PathBuf> {
   xdg::resolve_path(xdg_key).or_else(|| env::var_os(key).map(PathBuf::from))
 }
 
-fn resolve_xdg_path_with_fallback_and_sub_dir(xdg_key: &str, key: &str, sub_dir: &str) -> Option<PathBuf> {
-  resolve_xdg_path_with_fallback(xdg_key, key).map(|p| p.join(sub_dir))
+fn resolve_xdg_path_with_fallback_and_sub_dir(
+    xdg_key: &str,
+    key: &str,
+    sub_dir: &str,
+) -> Option<PathBuf> {
+    xdg::resolve_path(xdg_key).or_else(|| env::var_os(key).map(|p| PathBuf::from(p).join(sub_dir)))
 }
