@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Break Versioning].
 
+## [0.5.2] - 2026-04-11
+
+### Added
+
+* `xdg_bin_home_or(default)` - Returns `XDG_BIN_HOME` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_cache_home_or(default)` - Returns `XDG_CACHE_HOME` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_config_home_or(default)` - Returns `XDG_CONFIG_HOME` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_data_home_or(default)` - Returns `XDG_DATA_HOME` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_desktop_dir_or(default)` - Returns `XDG_DESKTOP_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_documents_dir_or(default)` - Returns `XDG_DOCUMENTS_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_download_dir_or(default)` - Returns `XDG_DOWNLOAD_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_music_dir_or(default)` - Returns `XDG_MUSIC_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_pictures_dir_or(default)` - Returns `XDG_PICTURES_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_publicshare_dir_or(default)` - Returns `XDG_PUBLICSHARE_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_runtime_dir_or(default)` - Returns `XDG_RUNTIME_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_state_home_or(default)` - Returns `XDG_STATE_HOME` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_templates_dir_or(default)` - Returns `XDG_TEMPLATES_DIR` if set to an absolute path,
+  otherwise returns the provided default
+* `xdg_videos_dir_or(default)` - Returns `XDG_VIDEOS_DIR` if set to an absolute path,
+  otherwise returns the provided default
+
+### Fixed
+
+* All directory functions on Windows now respect their corresponding XDG environment variables before
+  falling back to platform defaults
+
 ## [0.5.1] - 2026-04-10
 
 ### Fixed
@@ -109,6 +147,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Break Ve
 
 <!-- versions -->
 
+[0.5.2]: https://github.com/aaronmallen/dir_spec/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/aaronmallen/dir_spec/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/aaronmallen/dir_spec/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/aaronmallen/dir_spec/compare/0.3.0...0.4.0

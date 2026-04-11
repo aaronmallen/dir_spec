@@ -16,11 +16,9 @@ pub const TEMPLATES_DIR: &str = "XDG_TEMPLATES_DIR";
 pub const VIDEOS_DIR: &str = "XDG_VIDEOS_DIR";
 
 pub fn resolve_path(key: &str) -> Option<PathBuf> {
-    env::var_os(key)
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
+  env::var_os(key).map(PathBuf::from).filter(|p| p.is_absolute())
 }
 
 pub fn resolve_path_with_fallback(key: &str, default: &str) -> Option<PathBuf> {
-    resolve_path(key).or_else(|| env::home_dir().map(|p| p.join(default)))
+  resolve_path(key).or_else(|| env::home_dir().map(|p| p.join(default)))
 }
