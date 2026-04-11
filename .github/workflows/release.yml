@@ -37,6 +37,8 @@ jobs:
           title: v$tag
           token: ${{ secrets.GITHUB_TOKEN }}
   publish-crate:
+    needs:
+      - create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
