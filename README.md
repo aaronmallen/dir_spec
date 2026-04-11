@@ -81,6 +81,25 @@ fn main() {
 1. Same as the corresponding `*_home()` function on non-Windows platforms
 2. Returns `None` on Windows as there is no standard user fonts directory
 
+### XDG-Only Resolution with Custom Defaults
+
+Each XDG directory also has an `xdg_*_or(default)` variant that checks **only** the XDG
+environment variable and falls back to your provided default — skipping platform-specific
+defaults entirely. These return `PathBuf` instead of `Option<PathBuf>`.
+
+```rust
+// Use XDG_CONFIG_HOME if set, otherwise use your own default
+let config = dir_spec::xdg_config_home_or("/etc/myapp");
+
+// Useful for CLI tools that want XDG compliance without platform conventions
+let cache = dir_spec::xdg_cache_home_or("/tmp/myapp");
+```
+
+Available methods: `xdg_bin_home_or`, `xdg_cache_home_or`, `xdg_config_home_or`,
+`xdg_data_home_or`, `xdg_desktop_dir_or`, `xdg_documents_dir_or`, `xdg_download_dir_or`,
+`xdg_music_dir_or`, `xdg_pictures_dir_or`, `xdg_publicshare_dir_or`, `xdg_runtime_dir_or`,
+`xdg_state_home_or`, `xdg_templates_dir_or`, `xdg_videos_dir_or`.
+
 ## Directory Types Explained
 
 ### Config vs. Config Local
