@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="Test the documentation examples"
+#MISE alias=["test:doc"]
+
+set -e
+
+cargo test --doc --all-features

@@ -1,0 +1,94 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "[0-9]+.*"
+  pull_request:
+    branches:
+      - main
+concurrency:
+  cancel-in-progress: true
+  group: ${{ forgejo.workflow }}-${{ forgejo.ref }}
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v7
+      - uses: ./.forgejo/actions/setup
+      - name: Lint
+        run: mise run lint
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v7
+      - uses: ./.forgejo/actions/setup
+      - name: Check
+        run: mise run check
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v7
+      - uses: ./.forgejo/actions/setup
+      - name: Unit Test
+        run: mise run test
+      - name: Test the doc examples
+        run: mise run test:doc
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v7
+      - uses: ./.forgejo/actions/setup
+      - name: Build
+        run: mise run build
+  release:
+    name: Publish release
+    if: forgejo.event_name == 'push' && startsWith(forgejo.ref, 'refs/tags/')
+    needs:
+      - lint
+      - check
+      - test
+      - package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v7
+      - uses: ./.forgejo/actions/setup
+      - name: Extract release notes
+        env:
+          TAG: ${{ forgejo.ref_name }}
+        run: |
+          awk -v heading="## [$TAG]" '
+            /^## / { if (found) exit; found = index($0, heading) == 1; next }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > release-notes.md
+          printf '\n' >> release-notes.md
+          grep '^\[[^]]*\]:' CHANGELOG.md >> release-notes.md
+      - name: Publish packages
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          CARGO_REGISTRIES_FORGEJO_TOKEN: Bearer ${{ forgejo.token }}
+        run: mise run publish
+      - name: Create the release
+        uses: https://code.forgejo.org/actions/forgejo-release@v2.13.4
+        with:
+          direction: upload
+          url: ${{ forgejo.server_url }}
+          repo: ${{ forgejo.repository }}
+          tag: ${{ forgejo.ref_name }}
+          sha: ${{ forgejo.sha }}
+          title: v${{ forgejo.ref_name }}
+          token: ${{ forgejo.token }}
+          release-notes-file: release-notes.md
+          skip-assets: true
+      - name: Notify Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TAG: ${{ forgejo.ref_name }}
+          REPOSITORY_URL: ${{ forgejo.server_url }}/${{ forgejo.repository }}
+        run: |-
+          if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+            python3 -c 'import json, os; print(json.dumps({"content": "**dir_spec v" + os.environ["TAG"] + "** has been released! " + os.environ["REPOSITORY_URL"] + "/releases/tag/" + os.environ["TAG"]}))' |
+              curl --fail-with-body -H "Content-Type: application/json" --data-binary @- "$DISCORD_WEBHOOK_URL"
+          fi

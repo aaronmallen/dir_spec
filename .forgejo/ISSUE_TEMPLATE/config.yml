@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Questions
+    url: https://aaronmallen.dev/aaron/dir_spec/issues
+    about: Ask questions and discuss ideas with the community
+  - name: 🔒 Security Issues
+    url: mailto:hello@aaronmallen.me
+    about: Report security vulnerabilities privately

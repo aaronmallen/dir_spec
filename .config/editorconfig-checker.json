@@ -1,0 +1,11 @@
+{
+  "Exclude": [
+    ".cargo",
+    ".idea",
+    ".mise",
+    ".mise-data",
+    "coverage",
+    "target",
+    "tmp"
+  ]
+}

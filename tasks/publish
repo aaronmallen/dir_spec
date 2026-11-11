@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+#MISE description="Publish dir_spec to crates.io and Forgejo"
+
+set -eu
+
+package_id=$(cargo pkgid)
+version=${package_id##*#}
+version=${version##*@}
+
+publish() {
+  status=$(curl --user-agent 'dir_spec-publish (https://aaronmallen.dev/aaron/dir_spec)' --silent --show-error --output /dev/null --write-out '%{http_code}' "$2")
+  case "$status" in
+  200) printf 'dir_spec %s already exists on %s\n' "$version" "$1" ;;
+  404) cargo publish --locked --registry "$1" ;;
+  *)
+    printf 'Cannot check %s: HTTP %s\n' "$1" "$status" >&2
+    exit 1
+    ;;
+  esac
+}
+
+publish crates-io "https://crates.io/api/v1/crates/dir_spec/$version"
+publish forgejo "https://aaronmallen.dev/api/v1/packages/aaron/cargo/dir_spec/$version"
