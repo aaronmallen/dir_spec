@@ -11,7 +11,7 @@ publish() {
   status=$(curl --user-agent 'dir_spec-publish (https://aaronmallen.dev/aaron/dir_spec)' --silent --show-error --output /dev/null --write-out '%{http_code}' "$2")
   case "$status" in
   200) printf 'dir_spec %s already exists on %s\n' "$version" "$1" ;;
-  404) cargo publish --locked --registry "$1" ;;
+  404) cargo publish --locked --allow-dirty --registry "$1" ;;
   *)
     printf 'Cannot check %s: HTTP %s\n' "$1" "$status" >&2
     exit 1
