@@ -68,7 +68,7 @@ jobs:
       - name: Publish packages
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-          CARGO_REGISTRIES_FORGEJO_TOKEN: Bearer ${{ forgejo.token }}
+          CARGO_REGISTRIES_FORGEJO_TOKEN: Bearer ${{ secrets.FORGEJO_PACKAGE_TOKEN }}
         run: mise run publish
       - name: Create the release
         uses: https://code.forgejo.org/actions/forgejo-release@v2.13.4
